@@ -4,5 +4,9 @@
 #include "GladiatorGameGameMode.h"
 
 
+void AGladiatorGameGameMode::Run()
+{
+	
+}
 
 
