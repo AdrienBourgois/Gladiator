@@ -9,6 +9,7 @@ AAIDirector::AAIDirector()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	SpawnAI();
 
 }
 
@@ -26,3 +27,11 @@ void AAIDirector::Tick( float DeltaTime )
 
 }
 
+void AAIDirector::SpawnAI()
+{
+	for(auto idx = 0; idx < NbEnemy; idx ++)
+	{
+		
+
+	}
+}
