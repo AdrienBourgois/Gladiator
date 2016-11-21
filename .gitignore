@@ -9,7 +9,7 @@ Saved
 *.opensdf
 *.opendb
 *.sdf
-*.sln
+*.sln*
 *.suo
 *.xcodeproj
 *.xcworkspace
