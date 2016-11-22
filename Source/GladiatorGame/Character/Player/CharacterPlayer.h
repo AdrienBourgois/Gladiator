@@ -17,7 +17,45 @@ public:
 
 	virtual void BeginPlay() override;
 	virtual void Tick( float DeltaSeconds ) override;
-	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
+
+private:
+
+#pragma region Members
+
+	UPROPERTY(EditAnywhere) UCameraComponent* cameraComponent = nullptr;
+
+	UPROPERTY(EditAnywhere) float speed = 250.f;
+
+	UPROPERTY(EditAnywhere) float sensitivity = 100.f;
+	float len = 0.f;
+	UPROPERTY(EditAnywhere) float minLen = 100.f;
+
+
+
+#pragma endregion 
+
+	// --- ----- --- //
+
+#pragma region Functions
+
+	void SetupInputs();
+	UCameraComponent* FindCamera();
+
+	void VerticalAxis(float value);
+	void HorizontalAxis(float value);
+
+	void VerticalMovement(float value);
+	void HorizontalMovement(float value);
 
 	void Attack();
+
+	bool IsTargetViewable();
+	bool IsTargetInRange();
+
+	void AdaptView();
+	void AdaptFromCollision(FVector collider);
+	void CheckDistance();
+
+#pragma endregion
+
 };
