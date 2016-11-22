@@ -22,13 +22,13 @@ private:
 
 #pragma region Members
 
-	UCameraComponent* camera = nullptr;
+	UPROPERTY(EditAnywhere) UCameraComponent* cameraComponent = nullptr;
 
-	float speed = 250.f;
+	UPROPERTY(EditAnywhere) float speed = 250.f;
 
-	float sensitivity = 100.f;
-	float len = 100.f;
-	float minLen = 100.f;
+	UPROPERTY(EditAnywhere) float sensitivity = 100.f;
+	float len = 0.f;
+	UPROPERTY(EditAnywhere) float minLen = 100.f;
 
 
 
