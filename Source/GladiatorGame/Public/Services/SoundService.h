@@ -3,7 +3,7 @@
 #include "Object.h"
 #include "SoundService.generated.h"
 
-UCLASS()
+UCLASS(Blueprintable)
 class GLADIATORGAME_API USoundService : public UObject
 {
 	GENERATED_BODY()
@@ -15,6 +15,7 @@ public:
 	enum ESound_Type
 	{
 		SwordHit,
+		SwordMiss,
 		DeathCry,
 		AttackCry,
 	};
@@ -44,6 +45,8 @@ private:
 
 	UPROPERTY(EditAnywhere, Category="Cues")
 	USoundCue* sword_hit_cue = nullptr;
+	UPROPERTY(EditAnywhere, Category="Cues")
+	USoundCue* sword_miss_cue = nullptr;
 	UPROPERTY(EditAnywhere, Category="Cues")
 	USoundCue* death_cry_cue = nullptr;
 	UPROPERTY(EditAnywhere, Category="Cues")

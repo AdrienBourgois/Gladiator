@@ -1,5 +1,6 @@
 #include "GladiatorGame.h"
 #include "Services/SoundService.h"
+#include "ServiceLocator.h"
 
 USoundService::USoundService()
 {
