@@ -1,22 +1,16 @@
 #pragma once
 
-#include "GameFramework/Actor.h"
-#include "SoundManager.generated.h"
+#include "Object.h"
+#include "SoundService.generated.h"
 
 UCLASS()
-class GLADIATORGAME_API ASoundManager : public AActor
+class GLADIATORGAME_API USoundService : public UObject
 {
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
-	ASoundManager();
 
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-	
-	// Called every frame
-	//virtual void Tick( float DeltaSeconds ) override;
+	USoundService();
 
 	enum ESound_Type
 	{
@@ -32,33 +26,32 @@ private:
 
 	USoundCue* GetSound(ESound_Type type) const;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category="Sound Class")
 	USoundClass* master_mixer = nullptr;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category="Sound Class")
 	USoundClass* gameplay_mixer = nullptr;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category="Sound Class")
 	USoundClass* mechanics_mixer = nullptr;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category="Sound Class")
 	USoundClass* ambiant_mixer = nullptr;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category="Sound Class")
 	USoundClass* music_mixer = nullptr;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category="Sound Class")
 	USoundClass* ui_mixer = nullptr;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category="Mixer")
 	USoundMix* sound_mixer = nullptr;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category="Cues")
 	USoundCue* sword_hit_cue = nullptr;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category="Cues")
 	USoundCue* death_cry_cue = nullptr;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category="Cues")
 	USoundCue* attack_cry_cue = nullptr;
 
 	UAudioComponent* audio_comp = nullptr;
 
 	float time_between_sound = 0.f;
-
-
+	
 	
 };
