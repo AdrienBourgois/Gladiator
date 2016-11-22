@@ -14,3 +14,7 @@ Saved
 *.xcodeproj
 *.xcworkspace
 /.vs/
+
+Test
+*test*
+*.ipch
