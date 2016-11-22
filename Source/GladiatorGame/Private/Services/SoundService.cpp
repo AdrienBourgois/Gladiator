@@ -1,6 +1,5 @@
 #include "GladiatorGame.h"
 #include "Services/SoundService.h"
-#include "ServiceLocator.h"
 
 USoundService::USoundService()
 {
@@ -12,6 +11,7 @@ USoundCue* USoundService::GetSound(ESound_Type type) const
     switch (type)
     {
         case SwordHit: return sword_hit_cue;
+        case SwordMiss: return sword_miss_cue;
         case DeathCry: return death_cry_cue;
         case AttackCry: return attack_cry_cue;
         default: break;

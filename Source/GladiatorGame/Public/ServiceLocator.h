@@ -4,7 +4,7 @@
 #include "Services/SoundService.h"
 #include "ServiceLocator.generated.h"
 
-UCLASS()
+UCLASS(Blueprintable)
 class GLADIATORGAME_API UServiceLocator : public UObject
 {
 	GENERATED_BODY()
@@ -14,7 +14,6 @@ class GLADIATORGAME_API UServiceLocator : public UObject
 
 public:
 	UServiceLocator();
-	~UServiceLocator() = default;
 
 	static UServiceLocator* GetInstance();
 
