@@ -12,8 +12,8 @@ UCLASS()
 class GLADIATORGAME_API AGladiatorGameGameMode : public AGameMode
 {
 	GENERATED_BODY()
-	
-	
+
+		void Run();
 	
 	
 };
