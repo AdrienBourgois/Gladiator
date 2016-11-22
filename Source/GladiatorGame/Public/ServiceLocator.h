@@ -14,7 +14,7 @@ class GLADIATORGAME_API UServiceLocator : public UObject
 
 public:
 	UServiceLocator();
-	~UServiceLocator();
+	~UServiceLocator() = default;
 
 	static UServiceLocator* GetInstance();
 

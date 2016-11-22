@@ -53,8 +53,4 @@ private:
 	USoundCue* attack_cry_cue = nullptr;
 
 	UAudioComponent* audio_comp = nullptr;
-
-	float time_between_sound = 0.f;
-	
-	
 };
