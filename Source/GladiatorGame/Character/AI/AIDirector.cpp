@@ -9,7 +9,7 @@ AAIDirector::AAIDirector()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	SpawnAI();
+	InitAI();
 
 }
 
@@ -18,6 +18,20 @@ void AAIDirector::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	if (IAClass == nullptr)
+		return;
+
+	AIList.SetNum(SpawnPointsList.Num());
+	for (size_t i = 0; i < SpawnPointsList.Num(); ++i)
+	{
+
+		FVector SpawnLocation = SpawnPointsList[i]->GetActorLocation();
+		FActorSpawnParameters Params;
+		Params.bNoCollisionFail = true;
+
+		AIList[i] = Cast<ACharacter>(GetWorld()->SpawnActor(IAClass, &SpawnLocation, &FRotator::ZeroRotator, Params));
+		AIList[i]->SpawnDefaultController();
+	}
 }
 
 // Called every frame
@@ -25,13 +39,10 @@ void AAIDirector::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
 
+	
 }
 
-void AAIDirector::SpawnAI()
+void AAIDirector::InitAI()
 {
-	for(auto idx = 0; idx < NbEnemy; idx ++)
-	{
-		
 
-	}
 }
