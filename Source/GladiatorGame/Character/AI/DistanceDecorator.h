@@ -12,8 +12,13 @@ UCLASS()
 class GLADIATORGAME_API UDistanceDecorator : public UBTDecorator
 {
 	GENERATED_BODY()
-	
-	
-	
-	
+
+	virtual bool CalculateRawConditionValue(UBehaviorTreeComponent & OwnerComp, uint8 * NodeMemory)const override;
+
+public:
+	UPROPERTY(EditAnywhere)
+		float Distance = 100.f;
+	UPROPERTY(EditAnywhere)
+		FBlackboardKeySelector TargetKey;
+
 };

@@ -17,6 +17,10 @@ public:
 	virtual void Tick( float DeltaSeconds ) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 
+	void Init(AActor* Player, float safeDist);
+	void CalcVectorSafeDistance();
 	
-	
+private:
+	AActor* CurrentPlayer;
+	float SafeDistance;
 };
