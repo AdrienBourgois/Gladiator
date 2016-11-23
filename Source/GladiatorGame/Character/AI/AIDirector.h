@@ -3,6 +3,7 @@
 #pragma once
 
 #include "GameFramework/Actor.h"
+#include "AICharacter.h"
 #include "AIDirector.generated.h"
 
 UCLASS()
@@ -16,16 +17,17 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick( float DeltaSeconds ) override;
 
-	void InitAI();
-
 	UPROPERTY(EditAnywhere)
 		UClass* IAClass;
 	UPROPERTY(EditAnywhere)
 		TArray<AActor*>	SpawnPointsList;
 	UPROPERTY(EditAnywhere)
 		int NbEnemy = 5;
+	UPROPERTY(EditAnywhere)
+		float DistanceSafe = 500.f;
+
 private:
-	APawn* CurrentPlayer;
-	TArray<ACharacter*> AIList;
+	AActor* CurrentPlayer;
+	TArray<AAICharacter*> AIList;
 
 };
