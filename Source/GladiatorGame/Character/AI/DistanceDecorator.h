@@ -19,6 +19,8 @@ public:
 	UPROPERTY(EditAnywhere)
 		float Distance = 100.f;
 	UPROPERTY(EditAnywhere)
+		float RangeDistance = 100.f;
+	UPROPERTY(EditAnywhere)
 		FBlackboardKeySelector TargetKey;
 
 };

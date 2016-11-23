@@ -3,7 +3,6 @@
 #include "GladiatorGame.h"
 #include "AICharacter.h"
 #include "AIControl.h"
-#include "BehaviorTree/BlackboardComponent.h"
 
 
 // Sets default values
@@ -40,7 +39,7 @@ void AAICharacter::Init(AActor* Player, float safeDist)
 	SafeDistance = safeDist;
 	CurrentPlayer = Player;
 	AAIControl*	AIController = Cast<AAIControl>(GetController());
-	UBlackboardComponent* BlackBoard = AIController->FindComponentByClass<UBlackboardComponent>();
+	BlackBoard = AIController->FindComponentByClass<UBlackboardComponent>();
 	BlackBoard->SetValueAsObject("Player", CurrentPlayer);
 	BlackBoard->SetValueAsBool("GotoPlayer", false);
 }
@@ -53,7 +52,10 @@ void AAICharacter::CalcVectorSafeDistance()
 	float TargetDistance = CurDistance - SafeDistance;
 	FVector FSafeDistance = GetActorLocation() + Direction * TargetDistance;
 
-	AAIControl*	AIController = Cast<AAIControl>(GetController());
-	UBlackboardComponent* BlackBoard = AIController->FindComponentByClass<UBlackboardComponent>();
 	BlackBoard->SetValueAsVector("SafeDist", FSafeDistance);
+}
+
+void AAICharacter::SetGoToPlayer(bool value)
+{
+	BlackBoard->SetValueAsBool("GotoPlayer", value);
 }

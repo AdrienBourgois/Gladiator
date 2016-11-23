@@ -4,6 +4,7 @@
 
 #include "GameFramework/Character.h"
 #include "Character/BaseCharacter.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "AICharacter.generated.h"
 
 UCLASS()
@@ -20,7 +21,10 @@ public:
 	void Init(AActor* Player, float safeDist);
 	void CalcVectorSafeDistance();
 	
+	void SetGoToPlayer(bool value);
+
 private:
 	AActor* CurrentPlayer;
 	float SafeDistance;
+	UBlackboardComponent* BlackBoard;
 };

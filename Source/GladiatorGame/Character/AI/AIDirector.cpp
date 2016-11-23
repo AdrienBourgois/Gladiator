@@ -26,6 +26,7 @@ void AAIDirector::BeginPlay()
 		AIList[i]->SpawnDefaultController();
 		AIList[i]->Init(CurrentPlayer, DistanceSafe);
 	}
+	ChoiceGoToPlayer();
 }
 
 void AAIDirector::Tick( float DeltaTime )
@@ -33,4 +34,14 @@ void AAIDirector::Tick( float DeltaTime )
 	Super::Tick( DeltaTime );
 
 	
+}
+
+void AAIDirector::ChoiceGoToPlayer()
+{
+	int idx = FMath::RandRange(0, AIList.Num()-1);
+
+	const int32 AlwaysAddKey = -1;
+	GEngine->AddOnScreenDebugMessage(AlwaysAddKey, 5.f, FColor::Yellow, "IDX = " + FString::FromInt(idx));
+
+	AIList[idx]->SetGoToPlayer(true);
 }

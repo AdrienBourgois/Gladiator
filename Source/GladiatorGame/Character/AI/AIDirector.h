@@ -17,6 +17,8 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick( float DeltaSeconds ) override;
 
+	void ChoiceGoToPlayer();
+
 	UPROPERTY(EditAnywhere)
 		UClass* IAClass;
 	UPROPERTY(EditAnywhere)
