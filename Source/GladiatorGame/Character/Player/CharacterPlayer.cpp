@@ -95,12 +95,19 @@ bool ACharacterPlayer::IsTargetViewable()
 		return false;
 
 	FVector pos = this->cameraComponent->GetComponentLocation();
-
-	FHitResult result = FHitResult();
-
-	GetWorld()->LineTraceSingleByChannel(result, pos, this->GetActorLocation(), ECollisionChannel::ECC_WorldStatic);
-
-	return (result.Actor == this);
+	
+	TArray<FHitResult> results = TArray<FHitResult>();
+	GetWorld()->LineTraceMultiByChannel(results, pos, this->GetActorLocation(), ECollisionChannel::ECC_WorldStatic);
+	for (int i =0; i < results.Num(); ++i)
+	{
+		FHitResult hit = results[i];
+	
+		if (hit.Actor->GetClass()->IsChildOf(ACharacter::StaticClass()))
+			continue;
+		return false;
+	}
+	return true;
+	
 }
 
 bool ACharacterPlayer::IsTargetInRange()
@@ -144,7 +151,7 @@ void ACharacterPlayer::CheckDistance()
 		FVector dir = this->cameraComponent->GetComponentLocation() - this->GetActorLocation();
 		float factor = FMath::SmoothStep(0.f, len, curdist);
 		this->cameraComponent->SetWorldLocation(this->GetActorLocation() + (dir.GetSafeNormal() * len * factor));
-
+		
 		if (curdist < minLen)
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::SanitizeFloat(curdist));
