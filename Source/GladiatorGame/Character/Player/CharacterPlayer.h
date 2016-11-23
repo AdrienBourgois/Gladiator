@@ -22,6 +22,10 @@ private:
 
 #pragma region Members
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Wololo") int life = 5;
+	UPROPERTY(EditAnywhere/*, BlueprintReadWrite*/) bool attacking = false;
+
+
 	UPROPERTY(EditAnywhere) UCameraComponent* cameraComponent = nullptr;
 
 	UPROPERTY(EditAnywhere) float speed = 250.f;
