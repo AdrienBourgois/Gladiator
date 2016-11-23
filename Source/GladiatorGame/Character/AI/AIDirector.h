@@ -11,13 +11,9 @@ class GLADIATORGAME_API AAIDirector : public AActor
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
-	AAIDirector();
 
-	// Called when the game starts or when spawned
+	AAIDirector();
 	virtual void BeginPlay() override;
-	
-	// Called every frame
 	virtual void Tick( float DeltaSeconds ) override;
 
 	void InitAI();
@@ -29,7 +25,7 @@ public:
 	UPROPERTY(EditAnywhere)
 		int NbEnemy = 5;
 private:
-	
+	APawn* CurrentPlayer;
 	TArray<ACharacter*> AIList;
 
 };
