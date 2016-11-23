@@ -24,7 +24,7 @@ void AAIDirector::BeginPlay()
 		FVector SpawnLocation = SpawnPointsList[i]->GetActorLocation();
 		AIList[i] = Cast<AAICharacter>(GetWorld()->SpawnActor(IAClass, &SpawnLocation, &FRotator::ZeroRotator));
 		AIList[i]->SpawnDefaultController();
-		AIList[i]->Init(CurrentPlayer, DistanceSafe);
+		AIList[i]->Init(this, CurrentPlayer, DistanceSafe, DistanceToOtherAI);
 	}
 	ChoiceGoToPlayer();
 }
@@ -39,9 +39,5 @@ void AAIDirector::Tick( float DeltaTime )
 void AAIDirector::ChoiceGoToPlayer()
 {
 	int idx = FMath::RandRange(0, AIList.Num()-1);
-
-	const int32 AlwaysAddKey = -1;
-	GEngine->AddOnScreenDebugMessage(AlwaysAddKey, 5.f, FColor::Yellow, "IDX = " + FString::FromInt(idx));
-
 	AIList[idx]->SetGoToPlayer(true);
 }

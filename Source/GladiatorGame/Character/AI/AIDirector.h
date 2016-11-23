@@ -19,6 +19,8 @@ public:
 
 	void ChoiceGoToPlayer();
 
+	TArray<AAICharacter*> GetAIList() { return AIList; }
+
 	UPROPERTY(EditAnywhere)
 		UClass* IAClass;
 	UPROPERTY(EditAnywhere)
@@ -27,6 +29,8 @@ public:
 		int NbEnemy = 5;
 	UPROPERTY(EditAnywhere)
 		float DistanceSafe = 500.f;
+	UPROPERTY(EditAnywhere)
+		float DistanceToOtherAI = 200.f;
 
 private:
 	AActor* CurrentPlayer;
