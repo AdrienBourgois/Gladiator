@@ -97,11 +97,14 @@ bool ACharacterPlayer::IsTargetViewable()
 	FVector pos = this->cameraComponent->GetComponentLocation();
 	
 	TArray<FHitResult> results = TArray<FHitResult>();
-	GetWorld()->LineTraceMultiByChannel(results, pos, this->GetActorLocation(), ECollisionChannel::ECC_WorldStatic);
+	GetWorld()->LineTraceMultiByChannel(results, pos, this->GetActorLocation(), ECollisionChannel::ECC_MAX);
 	for (int i =0; i < results.Num(); ++i)
 	{
 		FHitResult hit = results[i];
 	
+		if (hit.Actor != this)
+			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, hit.Actor->GetName());
+
 		if (hit.Actor->GetClass()->IsChildOf(ACharacter::StaticClass()))
 			continue;
 		return false;
@@ -133,7 +136,7 @@ void ACharacterPlayer::AdaptView()
 	FVector pos = this->cameraComponent->GetComponentLocation();
 	FHitResult result = FHitResult();
 
-	GetWorld()->LineTraceSingleByChannel(result, pos, this->GetActorLocation(), ECollisionChannel::ECC_WorldStatic);
+	GetWorld()->LineTraceSingleByChannel(result, pos, this->GetActorLocation(), ECollisionChannel::ECC_MAX);
 	AdaptFromCollision(result.ImpactPoint);
 }
 
