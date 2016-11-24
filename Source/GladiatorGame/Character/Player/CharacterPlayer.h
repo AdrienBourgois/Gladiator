@@ -19,6 +19,7 @@ public:
 	virtual void Tick( float DeltaSeconds ) override;
 
 	UFUNCTION(BlueprintCallable, Category="Character Attack") bool HammerHit();
+	UFUNCTION(BlueprintCallable, Category = "Character Attack") bool AttackEnd();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) bool isAttacking = false;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly) int life = 5;
@@ -44,6 +45,7 @@ private:
 #pragma region Functions
 
 	void SetupInputs();
+
 	UCameraComponent* FindCamera();
 
 	void VerticalAxis(float value);
@@ -52,7 +54,8 @@ private:
 	void VerticalMovement(float value);
 	void HorizontalMovement(float value);
 
-	void Attack();
+	void DebugLock(ACharacter* target = nullptr);
+	void Attack() override;
 
 	bool IsTargetViewable();
 	bool IsTargetInRange();

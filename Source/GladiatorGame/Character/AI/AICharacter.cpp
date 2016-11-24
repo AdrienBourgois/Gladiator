@@ -18,7 +18,6 @@ AAICharacter::AAICharacter()
 void AAICharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame
