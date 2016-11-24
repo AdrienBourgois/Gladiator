@@ -55,7 +55,7 @@ void AAICharacter::CalcVectorSafeDistance()
 
 	TArray<AAICharacter*> AIList = AIManager->GetAIList();
 	FVector FSafeDistance = CalcVector(CurrentPlayer, SafeDistance);
-
+	FSafeDistance.Z = GetActorLocation().Z;
 	for (int idx = 0; idx < AIList.Num(); idx++ )
 		if (AIList[idx] != this)
 			if (DistanceToTarget(FSafeDistance, AIList[idx]) < DistanceWithIA)
@@ -63,7 +63,9 @@ void AAICharacter::CalcVectorSafeDistance()
 				FVector FDistForIA = CalcVector(AIList[idx], DistanceWithIA);
 
 				FSafeDistance += FDistForIA;
+				FSafeDistance.Z = GetActorLocation().Z;
 			}
+	
 	
 	BlackBoard->SetValueAsVector("SafeDist", FSafeDistance);
 }
