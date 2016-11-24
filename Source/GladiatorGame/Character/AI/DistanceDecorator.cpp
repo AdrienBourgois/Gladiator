@@ -11,7 +11,9 @@ bool UDistanceDecorator::CalculateRawConditionValue(UBehaviorTreeComponent & Own
 	AActor* AI =  OwnerComp.GetAIOwner()->GetPawn();
 	AActor* TargetActor = Cast<AActor>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(TargetKey.SelectedKeyName));
 
-	if (AI->GetDistanceTo(TargetActor) < Distance)
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, "Distance = " + FString::FromInt(AI->GetDistanceTo(TargetActor)));
+
+	if (AI->GetDistanceTo(TargetActor) < (Distance - RangeDistance) && AI->GetDistanceTo(TargetActor) > (Distance + RangeDistance))
 		return true;
 	else
 		return false;

@@ -3,7 +3,7 @@
 #include "GladiatorGame.h"
 #include "AICharacter.h"
 #include "AIControl.h"
-#include "BehaviorTree/BlackboardComponent.h"
+#include "AIDirector.h"
 
 
 // Sets default values
@@ -35,25 +35,57 @@ void AAICharacter::SetupPlayerInputComponent(class UInputComponent* InputCompone
 
 }
 
-void AAICharacter::Init(AActor* Player, float safeDist)
+void AAICharacter::Init(AAIDirector* AImgr, AActor* Player, float safeDist, float distIA)
 {
+
+	AIManager = AImgr;
 	SafeDistance = safeDist;
+	DistanceWithIA = distIA;
 	CurrentPlayer = Player;
 	AAIControl*	AIController = Cast<AAIControl>(GetController());
-	UBlackboardComponent* BlackBoard = AIController->FindComponentByClass<UBlackboardComponent>();
+	BlackBoard = AIController->FindComponentByClass<UBlackboardComponent>();
 	BlackBoard->SetValueAsObject("Player", CurrentPlayer);
 	BlackBoard->SetValueAsBool("GotoPlayer", false);
 }
 
 void AAICharacter::CalcVectorSafeDistance()
 {
-	FVector Difference = CurrentPlayer->GetActorLocation() - GetActorLocation();
+	TArray<AAICharacter*> AIList = AIManager->GetAIList();
+	FVector FSafeDistance = CalcVector(CurrentPlayer, SafeDistance);
+	
+	//for (int idx = 0; idx < AIList.Num(); idx++ )
+	//{
+	//	if (AIList[idx] != this)
+	//	{
+	//		if (DistanceToTarget(FSafeDistance, AIList[idx]) < DistanceWithIA)
+	//		{
+	//			FSafeDistance += CalcVector(AIList[idx], DistanceWithIA);
+	//			//idx = 0;
+	//		}
+	//	}
+	//}
+	
+	BlackBoard->SetValueAsVector("SafeDist", FSafeDistance);
+}
+
+FVector AAICharacter::CalcVector(AActor* target, float SafeDist)
+{
+	FVector Difference = target->GetActorLocation() - GetActorLocation();
 	float CurDistance; FVector Direction;
 	Difference.ToDirectionAndLength(Direction, CurDistance);
-	float TargetDistance = CurDistance - SafeDistance;
-	FVector FSafeDistance = GetActorLocation() + Direction * TargetDistance;
+	float TargetDistance = CurDistance - SafeDist;
+	return GetActorLocation() + Direction * TargetDistance;
+}
 
-	AAIControl*	AIController = Cast<AAIControl>(GetController());
-	UBlackboardComponent* BlackBoard = AIController->FindComponentByClass<UBlackboardComponent>();
-	BlackBoard->SetValueAsVector("SafeDist", FSafeDistance);
+float AAICharacter::DistanceToTarget(FVector Pos ,AActor* target)
+{
+	FVector Difference = target->GetActorLocation() - Pos;
+	float CurDistance; FVector Direction;
+	Difference.ToDirectionAndLength(Direction, CurDistance);
+	return CurDistance;
+}
+
+void AAICharacter::LookAt()
+{
+	
 }
