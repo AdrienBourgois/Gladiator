@@ -12,6 +12,7 @@ AAICharacter::AAICharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	CurrentPlayer = nullptr;
+	AIManager = nullptr;
 }
 
 // Called when the game starts or when spawned
@@ -37,7 +38,6 @@ void AAICharacter::SetupPlayerInputComponent(class UInputComponent* InputCompone
 
 void AAICharacter::Init(AAIDirector* AImgr, AActor* Player, float safeDist, float distIA)
 {
-
 	AIManager = AImgr;
 	SafeDistance = safeDist;
 	DistanceWithIA = distIA;
@@ -50,20 +50,20 @@ void AAICharacter::Init(AAIDirector* AImgr, AActor* Player, float safeDist, floa
 
 void AAICharacter::CalcVectorSafeDistance()
 {
+	if (AIManager == nullptr || CurrentPlayer == nullptr)
+		return;
+
 	TArray<AAICharacter*> AIList = AIManager->GetAIList();
 	FVector FSafeDistance = CalcVector(CurrentPlayer, SafeDistance);
-	
-	//for (int idx = 0; idx < AIList.Num(); idx++ )
-	//{
-	//	if (AIList[idx] != this)
-	//	{
-	//		if (DistanceToTarget(FSafeDistance, AIList[idx]) < DistanceWithIA)
-	//		{
-	//			FSafeDistance += CalcVector(AIList[idx], DistanceWithIA);
-	//			//idx = 0;
-	//		}
-	//	}
-	//}
+
+	for (int idx = 0; idx < AIList.Num(); idx++ )
+		if (AIList[idx] != this)
+			if (DistanceToTarget(FSafeDistance, AIList[idx]) < DistanceWithIA)
+			{
+				FVector FDistForIA = CalcVector(AIList[idx], DistanceWithIA);
+
+				FSafeDistance += FDistForIA;
+			}
 	
 	BlackBoard->SetValueAsVector("SafeDist", FSafeDistance);
 }
