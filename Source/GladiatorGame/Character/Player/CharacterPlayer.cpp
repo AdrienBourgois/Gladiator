@@ -28,6 +28,28 @@ void ACharacterPlayer::Tick(float DeltaTime)
 
 }
 
+bool ACharacterPlayer::HammerHit()
+{
+	TArray<FOverlapResult> results;
+	this->GetWorld()->OverlapMultiByChannel(results,
+		this->GetActorLocation() + this->GetActorForwardVector() * 2,
+		this->GetActorRotation().Quaternion(),
+		ECollisionChannel::ECC_MAX,
+		FCollisionShape::MakeSphere(100.f));
+
+	DrawDebugSphere(GetWorld(), this->GetActorLocation() + this->GetActorForwardVector() * 2, 100.f, 32, FColor::Blue, false, 5.f);
+
+	for (int i = 0; i < results.Num(); ++i)
+	{
+		FOverlapResult hit = results[i];
+		if (hit.Actor->GetClass()->IsChildOf(ACharacter::StaticClass()))
+			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, hit.Actor->GetName());
+
+	}
+
+
+	return true;
+}
 #pragma endregion
 
 // --- ----- --- //
@@ -79,6 +101,7 @@ void ACharacterPlayer::HorizontalMovement(float value)
 
 void ACharacterPlayer::Attack()
 {
+	this->isAttacking = true;
 	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, "Attack Not Implemented Yet");
 
 }

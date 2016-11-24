@@ -18,13 +18,14 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick( float DeltaSeconds ) override;
 
+	UFUNCTION(BlueprintCallable, Category="Character Attack") bool HammerHit();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite) bool isAttacking = false;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly) int life = 5;
+
 private:
 
 #pragma region Members
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Wololo") int life = 5;
-	UPROPERTY(EditAnywhere/*, BlueprintReadWrite*/) bool attacking = false;
-
 
 	UPROPERTY(EditAnywhere) UCameraComponent* cameraComponent = nullptr;
 
