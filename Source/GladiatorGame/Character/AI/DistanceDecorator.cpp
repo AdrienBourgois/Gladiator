@@ -13,7 +13,7 @@ bool UDistanceDecorator::CalculateRawConditionValue(UBehaviorTreeComponent & Own
 
 	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, "Distance = " + FString::FromInt(AI->GetDistanceTo(TargetActor)));
 
-	if (AI->GetDistanceTo(TargetActor) < Distance)// && AI->GetDistanceTo(TargetActor) > (Distance))
+	if (AI->GetDistanceTo(TargetActor) < Distance && AI->GetDistanceTo(TargetActor) > (Distance))
 		return true;
 	else
 		return false;
