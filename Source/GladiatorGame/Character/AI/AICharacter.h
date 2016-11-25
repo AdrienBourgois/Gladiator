@@ -22,15 +22,21 @@ public:
 
 	void Init(AAIDirector* AImgr, AActor* Player, float safeDist, float distIA);
 	void CalcVectorSafeDistance();
-	FVector CalcVector(AActor* target, float SafeDist);
-	float DistanceToTarget(FVector Pos, AActor* target);
+	FVector CalcVector(FVector MyLocation, FVector target, float SafeDist);
+	float DistanceToTarget(FVector Pos, FVector target);
 
 	void LookAt();
 
-	void SetGoToPlayer(bool value) {BlackBoard->SetValueAsBool("GotoPlayer", value);}
+	void SetGoToPlayer(bool value) const {BlackBoard->SetValueAsBool("GotoPlayer", value);}
+	FVector GetSafeLocation() const { return FSafeDistanceInBoard; }
+
 	
+	UPROPERTY(EditAnywhere)
+		float RotateSpeed = 20.0f;
+
 private:
 	AActor* CurrentPlayer;
+	FVector FSafeDistanceInBoard;
 	float SafeDistance;
 	float DistanceWithIA;
 	UBlackboardComponent* BlackBoard;

@@ -7,6 +7,8 @@
 AAIDirector::AAIDirector()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	IAClass = nullptr;
+	CurrentPlayer = nullptr;
 
 }
 
