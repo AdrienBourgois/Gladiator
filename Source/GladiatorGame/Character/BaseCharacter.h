@@ -21,6 +21,9 @@ public:
 	virtual void Death();
 	virtual void Move();
 
+	UFUNCTION(BlueprintCallable, Category = "Character Attack") virtual bool HammerHit();
+	UFUNCTION(BlueprintCallable, Category = "Character Attack") virtual bool AttackEnd();
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly) int _Life = 5;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) bool isAttacking = false;
 

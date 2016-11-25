@@ -18,8 +18,7 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick( float DeltaSeconds ) override;
 
-	UFUNCTION(BlueprintCallable, Category="Character Attack") bool HammerHit();
-	UFUNCTION(BlueprintCallable, Category = "Character Attack") bool AttackEnd();
+	bool AttackEnd() override;
 
 private:
 
@@ -32,7 +31,6 @@ private:
 	UPROPERTY(EditAnywhere) float sensitivity = 100.f;
 	float len = 0.f;
 	UPROPERTY(EditAnywhere) float minLen = 100.f;
-
 
 
 #pragma endregion 
@@ -52,7 +50,7 @@ private:
 	void HorizontalMovement(float value);
 
 	void DebugLock(ACharacter* target = nullptr);
-	void Attack() override;
+	//void Attack() override;
 
 	bool IsTargetViewable();
 	bool IsTargetInRange();

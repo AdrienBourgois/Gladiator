@@ -27,32 +27,8 @@ void ACharacterPlayer::BeginPlay()
 void ACharacterPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	this->DebugLock();
+	//this->DebugLock();
 
-}
-
-bool ACharacterPlayer::HammerHit()
-{
-	TArray<FOverlapResult> results;
-	this->GetWorld()->OverlapMultiByChannel(results,
-		this->GetActorLocation() + this->GetActorForwardVector() * 2,
-		this->GetActorRotation().Quaternion(),
-		ECollisionChannel::ECC_MAX,
-		FCollisionShape::MakeSphere(100.f));
-
-	//DrawDebugSphere(GetWorld(), this->GetActorLocation() + this->GetActorForwardVector() * 2, 100.f, 32, FColor::Blue, false, 5.f);
-
-	for (int i = 0; i < results.Num(); ++i)
-	{
-		FOverlapResult hit = results[i];
-		if (hit.Actor->GetClass()->IsChildOf(AAICharacter::StaticClass()))
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, hit.Actor->GetName());
-			DrawDebugCircle(GetWorld(), hit.Actor->GetActorLocation(), 100.f, 64, FColor::Red, false, 5.f, 0, 0, this->cameraComponent->GetRightVector());
-		}
-
-	}
-	return true;
 }
 
 bool ACharacterPlayer::AttackEnd()
@@ -61,6 +37,7 @@ bool ACharacterPlayer::AttackEnd()
 	InputComponent->BindAction("Attack", IE_Pressed, this, &ACharacterPlayer::Attack);
 	return true;
 }
+
 
 #pragma endregion
 
@@ -130,15 +107,14 @@ void ACharacterPlayer::DebugLock(ACharacter* target)
 
 }
 
-void ACharacterPlayer::Attack()
-{
-	if (isAttacking)
-		return;
-
-	this->isAttacking = true;
-	InputComponent->ClearActionBindings();
-	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, "Attack Not Implemented Yet");
-}
+//void ACharacterPlayer::Attack()
+//{
+//	if (isAttacking)
+//		return;
+//
+//	this->isAttacking = true;
+//	InputComponent->ClearActionBindings();
+//}
 
 #pragma endregion
 
@@ -159,7 +135,7 @@ bool ACharacterPlayer::IsTargetViewable()
 	{
 		FHitResult hit = results[i];
 
-		if (hit.Actor->GetClass()->IsChildOf(ACharacter::StaticClass()))
+		if (hit.Actor->GetClass()->IsChildOf(ABaseCharacter::StaticClass()))
 			continue;
 		return false;
 	}
