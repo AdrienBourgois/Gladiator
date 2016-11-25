@@ -7,6 +7,9 @@
 /**
  * 
  */
+
+const float ONE_METER = 100.f;
+
 UCLASS(Blueprintable)
 class GLADIATORGAME_API ABaseCharacter : public ACharacter
 {
