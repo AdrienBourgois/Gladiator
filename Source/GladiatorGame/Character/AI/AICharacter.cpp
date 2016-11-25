@@ -27,7 +27,7 @@ void AAICharacter::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
 	LookAt();
-	CalcVectorSafeDistance();
+	//CalcVectorSafeDistance();
 }
 
 // Called to bind functionality to input
