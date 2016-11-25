@@ -25,6 +25,8 @@ private:
 #pragma region Members
 
 	UPROPERTY(EditAnywhere) UCameraComponent* cameraComponent = nullptr;
+	TArray<AActor*> enemy_array;
+	AActor* lockTarget = nullptr;
 
 	UPROPERTY(EditAnywhere) float speed = 250.f;
 
@@ -41,6 +43,11 @@ private:
 
 	void SetupInputs();
 
+
+	// ----- //
+
+#pragma region Camera
+
 	UCameraComponent* FindCamera();
 
 	void VerticalAxis(float value);
@@ -50,7 +57,6 @@ private:
 	void HorizontalMovement(float value);
 
 	void DebugLock(ACharacter* target = nullptr);
-	//void Attack() override;
 
 	bool IsTargetViewable();
 	bool IsTargetInRange();
@@ -58,6 +64,16 @@ private:
 	void AdaptView();
 	void AdaptFromCollision(FVector collider);
 	void CheckDistance();
+
+#pragma endregion
+
+	// ----- //
+
+#pragma region LockSystem
+
+#pragma endregion
+	
+	// ----- //
 
 #pragma endregion
 
