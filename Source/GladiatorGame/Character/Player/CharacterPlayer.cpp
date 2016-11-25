@@ -126,7 +126,7 @@ void ACharacterPlayer::DebugLock(ACharacter* target)
 		pos = target->GetActorLocation();
 
 	FVector axis = this->cameraComponent->GetRightVector();// .RotateAngleAxis(this->cameraComponent->GetComponentRotation().Pitch, this->GetActorRightVector());
-	DrawDebugCircle(GetWorld(), pos, 100.f, 64, FColor::Red, false, -1.f, 0.f, 10.f, axis);
+	DrawDebugCircle(GetWorld(), pos, 100.f, 64, FColor::Red, false, -1.f, 0.f, 10.f, axis, this->cameraComponent->GetUpVector(), false);
 
 }
 
@@ -138,7 +138,6 @@ void ACharacterPlayer::Attack()
 	this->isAttacking = true;
 	InputComponent->ClearActionBindings();
 	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, "Attack Not Implemented Yet");
-
 }
 
 #pragma endregion

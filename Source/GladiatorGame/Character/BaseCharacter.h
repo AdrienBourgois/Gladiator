@@ -2,20 +2,26 @@
 
 #pragma once
 
+#include "GameFramework/Character.h"
+#include "BaseCharacter.generated.h"
 /**
  * 
  */
-class GLADIATORGAME_API BaseCharacter
+UCLASS(Blueprintable)
+class GLADIATORGAME_API ABaseCharacter : public ACharacter
 {
+	GENERATED_BODY()
 public:
-	BaseCharacter();
-	BaseCharacter(int Life);
-	virtual ~BaseCharacter();
+	ABaseCharacter();
+	ABaseCharacter(int Life);
+	virtual ~ABaseCharacter();
 	
 	virtual void Attack();
-	virtual void ReceiveDomage();
+	virtual void ReceiveDamage(int dmg = 1);
 	virtual void Death();
 	virtual void Move();
 
-	int _Life;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly) int _Life = 5;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite) bool isAttacking = false;
+
 };

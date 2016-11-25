@@ -10,7 +10,7 @@
 
 class AAIDirector;
 UCLASS()
-class GLADIATORGAME_API AAICharacter : public ACharacter, public BaseCharacter
+class GLADIATORGAME_API AAICharacter : public ABaseCharacter
 {
 	GENERATED_BODY()
 

@@ -7,7 +7,7 @@
 #include "CharacterPlayer.generated.h"
 
 UCLASS()
-class GLADIATORGAME_API ACharacterPlayer : public ACharacter, public BaseCharacter
+class GLADIATORGAME_API ACharacterPlayer :  public ABaseCharacter
 {
 	GENERATED_BODY()
 
@@ -20,9 +20,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="Character Attack") bool HammerHit();
 	UFUNCTION(BlueprintCallable, Category = "Character Attack") bool AttackEnd();
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite) bool isAttacking = false;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly) int life = 5;
 
 private:
 

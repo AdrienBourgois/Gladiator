@@ -3,33 +3,33 @@
 #include "GladiatorGame.h"
 #include "BaseCharacter.h"
 
-BaseCharacter::BaseCharacter()
+ABaseCharacter::ABaseCharacter()
 {
 }
-BaseCharacter::BaseCharacter(int Life)
+ABaseCharacter::ABaseCharacter(int Life)
 {
 	_Life = Life;
 }
-BaseCharacter::~BaseCharacter()
+ABaseCharacter::~ABaseCharacter()
 {
 }
 
-void BaseCharacter::Attack()
-{
-	
-}
-
-void BaseCharacter::ReceiveDomage()
+void ABaseCharacter::Attack()
 {
 	
 }
 
-void BaseCharacter::Death()
+void ABaseCharacter::ReceiveDamage(int dmg)
+{
+	this->_Life -= dmg;
+}
+
+void ABaseCharacter::Death()
 {
 	
 }
 
-void BaseCharacter::Move()
+void ABaseCharacter::Move()
 {
 	
 }
