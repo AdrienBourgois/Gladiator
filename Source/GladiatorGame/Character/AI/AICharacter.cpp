@@ -9,10 +9,11 @@
 // Sets default values
 AAICharacter::AAICharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	CurrentPlayer = nullptr;
 	AIManager = nullptr;
+	BlackBoard = nullptr;
 }
 
 // Called when the game starts or when spawned
@@ -49,38 +50,39 @@ void AAICharacter::Init(AAIDirector* AImgr, AActor* Player, float safeDist, floa
 
 void AAICharacter::CalcVectorSafeDistance()
 {
-	if (AIManager == nullptr || CurrentPlayer == nullptr)
+	if (AIManager == nullptr || CurrentPlayer == nullptr || BlackBoard == nullptr)
 		return;
 
 	TArray<AAICharacter*> AIList = AIManager->GetAIList();
-	FVector FSafeDistance = CalcVector(CurrentPlayer, SafeDistance);
+	FVector FSafeDistance = CalcVector(GetActorLocation(), CurrentPlayer->GetActorLocation(), SafeDistance);
 	FSafeDistance.Z = GetActorLocation().Z;
-	for (int idx = 0; idx < AIList.Num(); idx++ )
-		if (AIList[idx] != this)
-			if (DistanceToTarget(FSafeDistance, AIList[idx]) < DistanceWithIA)
-			{
-				FVector FDistForIA = CalcVector(AIList[idx], DistanceWithIA);
+	for (int idx = 0; idx < AIList.Num(); idx++)
+	{
+		if ((AIList[idx] != this) && (DistanceToTarget(FSafeDistance, AIList[idx]->GetSafeLocation()) < DistanceWithIA))
+		{
+			FVector FDistForIA = CalcVector(FSafeDistance, AIList[idx]->GetSafeLocation(), DistanceWithIA);
 
-				FSafeDistance += FDistForIA;
-				FSafeDistance.Z = GetActorLocation().Z;
-			}
+			FSafeDistance = FDistForIA;
+			FSafeDistance.Z = GetActorLocation().Z;
+		}
+	}
 	
-	
-	BlackBoard->SetValueAsVector("SafeDist", FSafeDistance);
+	FSafeDistanceInBoard = FSafeDistance;
+	BlackBoard->SetValueAsVector("SafeDist", FSafeDistanceInBoard);
 }
 
-FVector AAICharacter::CalcVector(AActor* target, float SafeDist)
+FVector AAICharacter::CalcVector(FVector MyLocation, FVector target, float SafeDist)
 {
-	FVector Difference = target->GetActorLocation() - GetActorLocation();
+	FVector Difference = target - MyLocation;
 	float CurDistance; FVector Direction;
 	Difference.ToDirectionAndLength(Direction, CurDistance);
 	float TargetDistance = CurDistance - SafeDist;
-	return GetActorLocation() + Direction * TargetDistance;
+	return MyLocation + Direction * TargetDistance;
 }
 
-float AAICharacter::DistanceToTarget(FVector Pos ,AActor* target)
+float AAICharacter::DistanceToTarget(FVector Pos , FVector target)
 {
-	FVector Difference = target->GetActorLocation() - Pos;
+	FVector Difference = target - Pos;
 	float CurDistance; FVector Direction;
 	Difference.ToDirectionAndLength(Direction, CurDistance);
 	return CurDistance;
@@ -88,5 +90,11 @@ float AAICharacter::DistanceToTarget(FVector Pos ,AActor* target)
 
 void AAICharacter::LookAt()
 {
-	
+	if (CurrentPlayer == nullptr)
+		return;
+	FRotator TargetRotation = (CurrentPlayer->GetActorLocation() - GetActorLocation()).Rotation();
+	TargetRotation.Pitch = 0.0f;
+
+	FRotator SmoothRotation = FMath::RInterpTo(GetActorRotation(), TargetRotation, GetWorld()->DeltaTimeSeconds, RotateSpeed);
+	SetActorRotation(SmoothRotation);
 }
