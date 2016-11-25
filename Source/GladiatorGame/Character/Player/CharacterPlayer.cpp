@@ -3,6 +3,8 @@
 #include "GladiatorGame.h"
 #include "CharacterPlayer.h"
 
+class AAICharacter : public ACharacter{};
+
 // --- ----- --- //
 
 #pragma region Default Functions
@@ -25,6 +27,7 @@ void ACharacterPlayer::BeginPlay()
 void ACharacterPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	this->DebugLock();
 
 }
 
@@ -37,19 +40,28 @@ bool ACharacterPlayer::HammerHit()
 		ECollisionChannel::ECC_MAX,
 		FCollisionShape::MakeSphere(100.f));
 
-	DrawDebugSphere(GetWorld(), this->GetActorLocation() + this->GetActorForwardVector() * 2, 100.f, 32, FColor::Blue, false, 5.f);
+	//DrawDebugSphere(GetWorld(), this->GetActorLocation() + this->GetActorForwardVector() * 2, 100.f, 32, FColor::Blue, false, 5.f);
 
 	for (int i = 0; i < results.Num(); ++i)
 	{
 		FOverlapResult hit = results[i];
-		if (hit.Actor->GetClass()->IsChildOf(ACharacter::StaticClass()))
+		if (hit.Actor->GetClass()->IsChildOf(AAICharacter::StaticClass()))
+		{
 			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, hit.Actor->GetName());
+			DrawDebugCircle(GetWorld(), hit.Actor->GetActorLocation(), 100.f, 64, FColor::Red, false, 5.f, 0, 0, this->cameraComponent->GetRightVector());
+		}
 
 	}
-
-
 	return true;
 }
+
+bool ACharacterPlayer::AttackEnd()
+{
+	this->isAttacking = false;
+	InputComponent->BindAction("Attack", IE_Pressed, this, &ACharacterPlayer::Attack);
+	return true;
+}
+
 #pragma endregion
 
 // --- ----- --- //
@@ -83,6 +95,9 @@ void ACharacterPlayer::HorizontalAxis(float value)
 
 void ACharacterPlayer::VerticalMovement(float value)
 {
+	if (isAttacking)
+		return;
+
 	FRotator cur_rotator = GetControlRotation();
 	cur_rotator.Pitch = 0.0f;
 	FVector dir_vector = cur_rotator.Vector();
@@ -92,6 +107,9 @@ void ACharacterPlayer::VerticalMovement(float value)
 
 void ACharacterPlayer::HorizontalMovement(float value)
 {
+	if (isAttacking)
+		return;
+
 	FRotator cur_rotator = GetControlRotation();
 	cur_rotator.Pitch = 0.0f;
 	FVector dir_vector = cur_rotator.RotateVector(FVector::RightVector.RotateAngleAxis(180.f, FVector::UpVector));
@@ -99,11 +117,27 @@ void ACharacterPlayer::HorizontalMovement(float value)
 	this->AdaptView();
 }
 
+void ACharacterPlayer::DebugLock(ACharacter* target)
+{
+	FVector pos;
+	if (target == nullptr)
+		pos = this->GetActorLocation();
+	else
+		pos = target->GetActorLocation();
+
+	FVector axis = this->cameraComponent->GetRightVector();// .RotateAngleAxis(this->cameraComponent->GetComponentRotation().Pitch, this->GetActorRightVector());
+	DrawDebugCircle(GetWorld(), pos, 100.f, 64, FColor::Red, false, -1.f, 0.f, 10.f, axis, this->cameraComponent->GetUpVector(), false);
+
+}
+
 void ACharacterPlayer::Attack()
 {
-	this->isAttacking = true;
-	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, "Attack Not Implemented Yet");
+	if (isAttacking)
+		return;
 
+	this->isAttacking = true;
+	InputComponent->ClearActionBindings();
+	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, "Attack Not Implemented Yet");
 }
 
 #pragma endregion
@@ -124,9 +158,6 @@ bool ACharacterPlayer::IsTargetViewable()
 	for (int i =0; i < results.Num(); ++i)
 	{
 		FHitResult hit = results[i];
-	
-		if (hit.Actor != this)
-			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, hit.Actor->GetName());
 
 		if (hit.Actor->GetClass()->IsChildOf(ACharacter::StaticClass()))
 			continue;
@@ -150,10 +181,7 @@ void ACharacterPlayer::AdaptView()
 {
 	if (IsTargetViewable())
 	{
-		if (IsTargetInRange())
-			CheckDistance();
-		else
-			CheckDistance(); //Waiting for fix
+		CheckDistance(); //Waiting for fix
 		return;
 	}
 	FVector pos = this->cameraComponent->GetComponentLocation();
@@ -175,13 +203,14 @@ void ACharacterPlayer::CheckDistance()
 	if (curdist < len)
 	{
 		FVector dir = this->cameraComponent->GetComponentLocation() - this->GetActorLocation();
-		float factor = FMath::SmoothStep(0.f, len, curdist);
-		this->cameraComponent->SetWorldLocation(this->GetActorLocation() + (dir.GetSafeNormal() * len * factor));
 		
-		if (curdist < minLen)
+		if (curdist >= minLen)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::SanitizeFloat(curdist));
-			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, dir.GetSafeNormal().ToString());
+			float factor = FMath::SmoothStep(0.f, len, curdist);
+			this->cameraComponent->SetWorldLocation(this->GetActorLocation() + (dir.GetSafeNormal() * len * factor));
+		}
+		else
+		{
 			dir = -this->Controller->GetControlRotation().Vector();
 			this->cameraComponent->SetWorldLocation(this->GetActorLocation() + (dir.GetSafeNormal() * minLen * 2));
 		}

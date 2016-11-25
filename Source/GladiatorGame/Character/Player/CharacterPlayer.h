@@ -7,7 +7,7 @@
 #include "CharacterPlayer.generated.h"
 
 UCLASS()
-class GLADIATORGAME_API ACharacterPlayer : public ACharacter, public BaseCharacter
+class GLADIATORGAME_API ACharacterPlayer :  public ABaseCharacter
 {
 	GENERATED_BODY()
 
@@ -19,9 +19,7 @@ public:
 	virtual void Tick( float DeltaSeconds ) override;
 
 	UFUNCTION(BlueprintCallable, Category="Character Attack") bool HammerHit();
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite) bool isAttacking = false;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly) int life = 5;
+	UFUNCTION(BlueprintCallable, Category = "Character Attack") bool AttackEnd();
 
 private:
 
@@ -44,6 +42,7 @@ private:
 #pragma region Functions
 
 	void SetupInputs();
+
 	UCameraComponent* FindCamera();
 
 	void VerticalAxis(float value);
@@ -52,7 +51,8 @@ private:
 	void VerticalMovement(float value);
 	void HorizontalMovement(float value);
 
-	void Attack();
+	void DebugLock(ACharacter* target = nullptr);
+	void Attack() override;
 
 	bool IsTargetViewable();
 	bool IsTargetInRange();
