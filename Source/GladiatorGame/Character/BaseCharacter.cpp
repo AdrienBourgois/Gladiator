@@ -30,12 +30,12 @@ bool ABaseCharacter::HammerHit()
 {
 	TArray<FOverlapResult> results;
 	this->GetWorld()->OverlapMultiByChannel(results,
-		this->GetActorLocation() + this->GetActorForwardVector() * 2,
+		this->GetActorLocation() + this->GetActorForwardVector() * ONE_METER,
 		this->GetActorRotation().Quaternion(),
 		ECollisionChannel::ECC_MAX,
-		FCollisionShape::MakeSphere(100.f));
+		FCollisionShape::MakeSphere(ONE_METER*.5f));
 
-	//DrawDebugSphere(GetWorld(), this->GetActorLocation() + this->GetActorForwardVector() * 2, 100.f, 32, FColor::Blue, false, 5.f);
+	//DrawDebugSphere(GetWorld(), this->GetActorLocation() + this->GetActorForwardVector() * ONE_METER, ONE_METER*.5f, 32, FColor::Blue, false, 2.f);
 
 	for (int i = 0; i < results.Num(); ++i)
 	{
@@ -44,7 +44,7 @@ bool ABaseCharacter::HammerHit()
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, hit.Actor->GetName());
 
-			if (hit.Actor != this)
+			if (hit.Actor->GetClass() != this->GetClass())
 			{
 				ABaseCharacter* enemy = Cast<ABaseCharacter>(hit.GetActor());
 				if (enemy != nullptr)
