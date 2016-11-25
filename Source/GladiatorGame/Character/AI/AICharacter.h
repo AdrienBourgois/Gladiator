@@ -25,12 +25,12 @@ public:
 	FVector CalcVector(FVector MyLocation, FVector target, float SafeDist);
 	float DistanceToTarget(FVector Pos, FVector target);
 
+	void MoveTo(FVector Target);
 	void LookAt();
 
 	void SetGoToPlayer(bool value) const {BlackBoard->SetValueAsBool("GotoPlayer", value);}
 	FVector GetSafeLocation() const { return FSafeDistanceInBoard; }
 
-	
 	UPROPERTY(EditAnywhere)
 		float RotateSpeed = 20.0f;
 

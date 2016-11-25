@@ -26,7 +26,8 @@ void AAICharacter::BeginPlay()
 void AAICharacter::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
-
+	LookAt();
+	CalcVectorSafeDistance();
 }
 
 // Called to bind functionality to input
@@ -60,9 +61,7 @@ void AAICharacter::CalcVectorSafeDistance()
 	{
 		if ((AIList[idx] != this) && (DistanceToTarget(FSafeDistance, AIList[idx]->GetSafeLocation()) < DistanceWithIA))
 		{
-			FVector FDistForIA = CalcVector(FSafeDistance, AIList[idx]->GetSafeLocation(), DistanceWithIA);
-
-			FSafeDistance = FDistForIA;
+			FSafeDistance = CalcVector(FSafeDistance, AIList[idx]->GetSafeLocation(), DistanceWithIA);
 			FSafeDistance.Z = GetActorLocation().Z;
 		}
 	}
@@ -86,6 +85,19 @@ float AAICharacter::DistanceToTarget(FVector Pos , FVector target)
 	float CurDistance; FVector Direction;
 	Difference.ToDirectionAndLength(Direction, CurDistance);
 	return CurDistance;
+}
+
+void AAICharacter::MoveTo(FVector Target)
+{
+	FVector Difference = Target - GetActorLocation();
+	float CurDistance;
+	FVector Direction;
+	Difference.ToDirectionAndLength(Direction, CurDistance);
+
+	//float TargetDistance = CurDistance - Distance;
+	float MoveDistance = FMath::Clamp(CurDistance, -50.0f * GetWorld()->DeltaTimeSeconds, -50.0f * GetWorld()->DeltaTimeSeconds);
+
+	SetActorLocation(GetActorLocation() + Direction * MoveDistance);
 }
 
 void AAICharacter::LookAt()
