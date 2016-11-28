@@ -214,10 +214,12 @@ void ACharacterPlayer::CallLock()
 	if (this->lockTarget == nullptr)
 	{
 		this->UpdateEnemyList();
-		this->lockTarget = this->FindNearestEnemyFrom(this->GetActorLocation() + this->GetActorForwardVector() * ONE_METER);
+		this->SortEnemyList();
+		this->lockTarget = this->FindForwardTarget();
 	}
 	else
 		this->lockTarget = nullptr;
+
 }
 
 void ACharacterPlayer::DebugLock(AActor* target)
@@ -231,19 +233,87 @@ void ACharacterPlayer::DebugLock(AActor* target)
 	FVector axis = this->cameraComponent->GetRightVector();
 	DrawDebugCircle(GetWorld(), pos, 100.f, 64, FColor::Red, false, -1.f, 0.f, 10.f, axis, this->cameraComponent->GetUpVector(), false);
 
+	FVector2D lookatdir = FVector2D(pos) - FVector2D(this->GetActorLocation());
+	this->SetActorRotation(FRotationMatrix::MakeFromX(FVector(lookatdir, 0.f)).Rotator());
+
 }
 
 TArray<AActor*> ACharacterPlayer::UpdateEnemyList()
 {
 	this->enemy_array.Empty();
+	this->enemy_map.Empty();
+
 	for (TActorIterator<AAICharacter> enemy(GetWorld()); enemy; ++enemy)
 	{
 		AAICharacter* current = *enemy;
-
-		this->enemy_array.Add(Cast<AActor>(current));
+		if (current->GetClass() != this->GetClass())
+		{
+			AActor* cur_actor = Cast<AActor>(current);
+			this->enemy_array.Add(cur_actor);
+			this->enemy_map.Add(this->GetActorPositionFactor(cur_actor), cur_actor);
+		}
 	}
 
 	return this->enemy_array;
+}
+
+void ACharacterPlayer::SortEnemyList()
+{
+	TMap< float, AActor*> raw = TMap< float, AActor*>();
+	TArray<float> factors = TArray<float>();
+
+	for (int i = 0; i < this->enemy_array.Num(); ++i)
+	{
+		float curfactor = this->GetActorPositionFactor(this->enemy_array[i]);
+		raw.Add(curfactor,this->enemy_array[i]);
+		factors.Add(curfactor);
+	}
+
+	factors.Sort();
+	this->enemy_map.Empty();
+
+	for (int i = 0; i < factors.Num(); ++i)
+	{
+		this->enemy_map.Add(factors[i], raw[factors[i]]);
+		this->enemy_array[factors.IndexOfByKey(factors[i])] = raw[factors[i]];
+	}
+
+	
+}
+
+float ACharacterPlayer::GetActorPositionFactor(AActor* factorized)
+{
+	FVector pos = factorized->GetActorLocation();
+	float raw = ACharacterPlayer::GetAngleBetween(factorized->GetActorLocation() - this->GetActorLocation(), this->GetActorForwardVector());
+	float ref = raw * this->GetLRFactor(this, factorized);
+	return ref;
+}
+
+AActor* ACharacterPlayer::FindForwardTarget()
+{
+	TArray<float> keys = TArray<float>();
+	this->enemy_map.GetKeys(keys);
+
+	for (int i = 0; i < keys.Num(); ++i)
+	{
+		bool isMin = true;
+		for (int j = 0; j < keys.Num(); ++j)
+		{
+			if (i == j)
+				continue;
+			
+			if (FMath::Abs(keys[i]) > FMath::Abs(keys[j]))
+			{
+				isMin = false;
+				break;
+			}
+		}
+		if (!isMin)
+			continue;
+
+		return this->enemy_map[keys[i]];
+	}
+	return nullptr;
 }
 
 AActor* ACharacterPlayer::FindNearestEnemyFrom(FVector pos)
@@ -280,18 +350,49 @@ AActor* ACharacterPlayer::FindNearestEnemyFrom(FVector pos)
 
 void ACharacterPlayer::SwitchTarget(/*float value*/)
 {
-	//if (FMath::Sign(value) == -1)
-	//	this->lockTarget = enemy_array[FMath::Min(0, enemy_array.IndexOfByKey(this->lockTarget) - 1)];
-	//else
-	//	this->lockTarget = enemy_array[FMath::Max(enemy_array.Num(), enemy_array.IndexOfByKey(this->lockTarget) + 1)];
+	int value = 1;	//Waiting for fix on mouse wheel axis binding
 
-	int idx = enemy_array.IndexOfByKey(this->lockTarget) + 1;
-	if (idx >= enemy_array.Num())
+	if (!this->lockTarget)
+		return;
+
+	TArray<float> keys = TArray<float>();
+	enemy_map.GetKeys(keys);
+	float curkey = *enemy_map.FindKey(this->lockTarget);
+
+	int idx = keys.IndexOfByKey(curkey) + value ;
+	if (idx >= keys.Num())
 		idx = 0;
+	else if (idx < 0)
+		idx = keys.Num() - 1;
 
-	this->lockTarget = enemy_array[idx];
+	this->lockTarget = enemy_map[keys[idx]];
+}
 
-	//return this->lockTarget;
+#pragma endregion
+
+// --- ----- --- //
+
+#pragma region Utilities
+
+float ACharacterPlayer::GetAngleBetween(FVector V1, FVector V2)
+{
+	return FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(V1.GetSafeNormal(), V2.GetSafeNormal())));
+}
+
+int ACharacterPlayer::GetLRFactor(AActor* ref_actor, AActor* tested_actor)
+{
+	FVector refpos = ref_actor->GetActorLocation();
+	FVector testpos = tested_actor->GetActorLocation();
+
+	float LDist = FVector::Dist(refpos - ref_actor->GetActorRightVector(), testpos);
+	float RDist = FVector::Dist(refpos + ref_actor->GetActorRightVector(), testpos);
+
+	if (LDist < RDist)
+		return LFACTOR;
+	else if (RDist < LDist)
+		return RFACTOR;
+
+	return 0;
 }
 
 #pragma endregion 

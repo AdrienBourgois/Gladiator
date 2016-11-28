@@ -6,6 +6,9 @@
 #include "Character/BaseCharacter.h"
 #include "CharacterPlayer.generated.h"
 
+const int LFACTOR = -1;
+const int RFACTOR = 1;
+
 UCLASS()
 class GLADIATORGAME_API ACharacterPlayer :  public ABaseCharacter
 {
@@ -24,16 +27,16 @@ private:
 
 #pragma region Members
 
-	UPROPERTY(EditAnywhere) UCameraComponent* cameraComponent = nullptr;
 	TArray<AActor*> enemy_array = TArray<AActor*>();
+	TMap<float, AActor*> enemy_map = TMap<float, AActor*>();
 	AActor* lockTarget = nullptr;
 
 	UPROPERTY(EditAnywhere) float speed = 250.f;
 
+	UPROPERTY(EditAnywhere) UCameraComponent* cameraComponent = nullptr;
 	UPROPERTY(EditAnywhere) float sensitivity = 100.f;
-	float len = 0.f;
 	UPROPERTY(EditAnywhere) float minLen = 100.f;
-
+	float len = 0.f;
 
 #pragma endregion 
 
@@ -80,7 +83,10 @@ private:
 	void DebugLock(AActor* target = nullptr);
 
 	TArray<AActor*> UpdateEnemyList();
+	void SortEnemyList();
+	float GetActorPositionFactor(AActor* factorized);
 
+	AActor* FindForwardTarget();
 	AActor* FindNearestEnemyFrom(FVector pos);
 
 	void SwitchTarget(/*float value*/);
@@ -89,6 +95,15 @@ private:
 #pragma endregion
 	
 	// ----- //
+
+#pragma region Utilities
+
+	static float GetAngleBetween(FVector V1, FVector V2);
+	static int GetLRFactor(AActor* ref_actor, AActor* tested_actor);
+
+#pragma endregion
+
+	// --- ----- --- //
 
 #pragma endregion
 
