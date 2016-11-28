@@ -19,7 +19,7 @@ ACharacterPlayer::ACharacterPlayer()
 void ACharacterPlayer::BeginPlay()
 {
 	Super::BeginPlay();
-	SetupInputs();
+	//SetupInputs();
 	FindCamera();
 	len = FVector::Dist(this->cameraComponent->GetComponentLocation(), this->GetActorLocation());
 }
@@ -27,8 +27,7 @@ void ACharacterPlayer::BeginPlay()
 void ACharacterPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	//this->DebugLock();
-
+	this->DebugLock(this->lockTarget);
 }
 
 bool ACharacterPlayer::AttackEnd()
@@ -45,6 +44,22 @@ bool ACharacterPlayer::AttackEnd()
 
 #pragma region Inputs
 
+void ACharacterPlayer::SetupPlayerInputComponent(class UInputComponent* InputComponent)
+{
+	InputComponent->BindAxis("ViewVertical", this, &ACharacterPlayer::VerticalAxis);
+	InputComponent->BindAxis("ViewHorizontal", this, &ACharacterPlayer::HorizontalAxis);
+
+	InputComponent->BindAxis("MoveVertical", this, &ACharacterPlayer::VerticalMovement);
+	InputComponent->BindAxis("MoveHorizontal", this, &ACharacterPlayer::HorizontalMovement);
+
+	//InputComponent->BindAxis("LockSwitch", this, &ACharacterPlayer::SwitchTarget);
+
+	InputComponent->BindAction("Attack", IE_Pressed, this, &ACharacterPlayer::Attack);
+	InputComponent->BindAction("Lock", IE_Pressed, this, &ACharacterPlayer::CallLock);
+
+	InputComponent->BindAction("DebugSwitchLock", IE_Pressed, this, &ACharacterPlayer::SwitchTarget);
+}
+
 void ACharacterPlayer::SetupInputs()
 {
 	InputComponent->BindAxis("ViewVertical", this, &ACharacterPlayer::VerticalAxis);
@@ -53,7 +68,10 @@ void ACharacterPlayer::SetupInputs()
 	InputComponent->BindAxis("MoveVertical", this, &ACharacterPlayer::VerticalMovement);
 	InputComponent->BindAxis("MoveHorizontal", this, &ACharacterPlayer::HorizontalMovement);
 
+	//InputComponent->BindAxis("LockSwitch", this, &ACharacterPlayer::SwitchTarget);
+
 	InputComponent->BindAction("Attack", IE_Pressed, this, &ACharacterPlayer::Attack);
+	//InputComponent->BindAction("Lock", IE_Pressed, this, &ACharacterPlayer::CallLock);
 }
 
 void ACharacterPlayer::VerticalAxis(float value)
@@ -94,27 +112,6 @@ void ACharacterPlayer::HorizontalMovement(float value)
 	this->AdaptView();
 }
 
-void ACharacterPlayer::DebugLock(ACharacter* target)
-{
-	FVector pos;
-	if (target == nullptr)
-		pos = this->GetActorLocation();
-	else
-		pos = target->GetActorLocation();
-
-	FVector axis = this->cameraComponent->GetRightVector();// .RotateAngleAxis(this->cameraComponent->GetComponentRotation().Pitch, this->GetActorRightVector());
-	DrawDebugCircle(GetWorld(), pos, 100.f, 64, FColor::Red, false, -1.f, 0.f, 10.f, axis, this->cameraComponent->GetUpVector(), false);
-
-}
-
-//void ACharacterPlayer::Attack()
-//{
-//	if (isAttacking)
-//		return;
-//
-//	this->isAttacking = true;
-//	InputComponent->ClearActionBindings();
-//}
 
 #pragma endregion
 
@@ -207,5 +204,96 @@ UCameraComponent* ACharacterPlayer::FindCamera()
 }
 
 #pragma endregion
+
+// --- ----- --- //
+
+#pragma region LockSystem
+
+void ACharacterPlayer::CallLock()
+{
+	if (this->lockTarget == nullptr)
+	{
+		this->UpdateEnemyList();
+		this->lockTarget = this->FindNearestEnemyFrom(this->GetActorLocation() + this->GetActorForwardVector() * ONE_METER);
+	}
+	else
+		this->lockTarget = nullptr;
+}
+
+void ACharacterPlayer::DebugLock(AActor* target)
+{
+	FVector pos;
+	if (target == nullptr)
+		return;
+	else
+		pos = target->GetActorLocation();
+
+	FVector axis = this->cameraComponent->GetRightVector();
+	DrawDebugCircle(GetWorld(), pos, 100.f, 64, FColor::Red, false, -1.f, 0.f, 10.f, axis, this->cameraComponent->GetUpVector(), false);
+
+}
+
+TArray<AActor*> ACharacterPlayer::UpdateEnemyList()
+{
+	this->enemy_array.Empty();
+	for (TActorIterator<AAICharacter> enemy(GetWorld()); enemy; ++enemy)
+	{
+		AAICharacter* current = *enemy;
+
+		this->enemy_array.Add(Cast<AActor>(current));
+	}
+
+	return this->enemy_array;
+}
+
+AActor* ACharacterPlayer::FindNearestEnemyFrom(FVector pos)
+{
+	float minlen = FMath::Pow(ONE_METER, ONE_METER);
+
+	for (int i = 0; i < this->enemy_array.Num(); ++i)
+	{
+		AActor* actorI = this->enemy_array[i];
+		for (int j = 0; i < this->enemy_array.Num(); ++i)
+		{
+			AActor* actorJ = this->enemy_array[j];
+			if (actorI == actorJ)
+				continue;
+
+			minlen = FMath::Min(FVector::Dist(pos , actorI->GetActorLocation()), FVector::Dist(pos, actorJ->GetActorLocation()));
+		}
+	}
+
+	AActor* result = nullptr;
+
+	for (int i = 0; i < this->enemy_array.Num(); ++i)
+	{
+		AActor* actorI = this->enemy_array[i];
+		if (FVector::Dist(pos, actorI->GetActorLocation()))
+		{
+			result = actorI;
+			return result;
+		}
+	}
+
+	return result;
+}
+
+void ACharacterPlayer::SwitchTarget(/*float value*/)
+{
+	//if (FMath::Sign(value) == -1)
+	//	this->lockTarget = enemy_array[FMath::Min(0, enemy_array.IndexOfByKey(this->lockTarget) - 1)];
+	//else
+	//	this->lockTarget = enemy_array[FMath::Max(enemy_array.Num(), enemy_array.IndexOfByKey(this->lockTarget) + 1)];
+
+	int idx = enemy_array.IndexOfByKey(this->lockTarget) + 1;
+	if (idx >= enemy_array.Num())
+		idx = 0;
+
+	this->lockTarget = enemy_array[idx];
+
+	//return this->lockTarget;
+}
+
+#pragma endregion 
 
 // --- ----- --- //
