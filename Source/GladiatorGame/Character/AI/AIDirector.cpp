@@ -41,8 +41,11 @@ void AAIDirector::ChoiceGoToPlayer()
 	if (AIList.Num() <= 0)
 		return;
 
-	for (size_t i = 0; i < AIList.Num()-1; ++i)
+	for (int i = 0; i < AIList.Num() - 1; ++i)
+	{
+//		UE_LOG(LogTemp, Warning, TEXT("ChoiceGoToPlayer i = %d"), i);
 		AIList[i]->SetGoToPlayer(false);
+	}
 
 	int idx = FMath::RandRange(0, AIList.Num()-1);
 	AIList[idx]->SetGoToPlayer(true);

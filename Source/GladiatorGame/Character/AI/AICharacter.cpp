@@ -128,8 +128,6 @@ bool AAICharacter::AttackEnd()
 
 void AAICharacter::Death()
 {
-	UE_LOG(LogTemp, Warning, TEXT("DEATH AI"));
-
 	this->SetActorEnableCollision(false);
 
 	AAIControl*	AIController = Cast<AAIControl>(GetController());
@@ -137,5 +135,6 @@ void AAICharacter::Death()
 
 	CurrentPlayer = nullptr;
 
-	AIManager->DeathAI(this);
+	if (AIManager != nullptr)
+		AIManager->DeathAI(this);
 }
