@@ -31,7 +31,8 @@ public:
 		float DistanceSafe = 500.f;
 	UPROPERTY(EditAnywhere)
 		float DistanceToOtherAI = 200.f;
-
+	UPROPERTY(EditAnywhere)
+		int _Life = 3;
 private:
 	AActor* CurrentPlayer;
 	TArray<AAICharacter*> AIList;

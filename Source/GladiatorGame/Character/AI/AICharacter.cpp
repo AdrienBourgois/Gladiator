@@ -14,6 +14,7 @@ AAICharacter::AAICharacter()
 	CurrentPlayer = nullptr;
 	AIManager = nullptr;
 	BlackBoard = nullptr;
+	
 }
 
 // Called when the game starts or when spawned
@@ -47,6 +48,7 @@ void AAICharacter::Init(AAIDirector* AImgr, AActor* Player, float safeDist, floa
 	BlackBoard = AIController->FindComponentByClass<UBlackboardComponent>();
 	BlackBoard->SetValueAsObject("Player", CurrentPlayer);
 	BlackBoard->SetValueAsBool("GotoPlayer", false);
+	_Life = 3;
 }
 
 void AAICharacter::CalcVectorSafeDistance()
@@ -76,6 +78,8 @@ FVector AAICharacter::CalcVector(FVector MyLocation, FVector target, float SafeD
 	float CurDistance; FVector Direction;
 	Difference.ToDirectionAndLength(Direction, CurDistance);
 	float TargetDistance = CurDistance - SafeDist;
+
+	UE_LOG(LogTemp, Warning, TEXT("Direction x = %f // y = %f // z = %f"), Direction.X, Direction.Y, Direction.Z);
 	return MyLocation + Direction * TargetDistance;
 }
 
