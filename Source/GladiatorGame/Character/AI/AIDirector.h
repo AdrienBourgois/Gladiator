@@ -18,6 +18,7 @@ public:
 	virtual void Tick( float DeltaSeconds ) override;
 
 	void ChoiceGoToPlayer();
+	void DeathAI(AAICharacter* Target);
 
 	TArray<AAICharacter*> GetAIList() { return AIList; }
 
@@ -31,7 +32,8 @@ public:
 		float DistanceSafe = 500.f;
 	UPROPERTY(EditAnywhere)
 		float DistanceToOtherAI = 200.f;
-
+	UPROPERTY(EditAnywhere)
+		int _Life = 3;
 private:
 	AActor* CurrentPlayer;
 	TArray<AAICharacter*> AIList;

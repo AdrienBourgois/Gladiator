@@ -4,6 +4,7 @@
 #include "AICharacter.h"
 #include "AIControl.h"
 #include "AIDirector.h"
+#include "BehaviorTree/BehaviorTreeComponent.h"
 
 
 // Sets default values
@@ -14,6 +15,7 @@ AAICharacter::AAICharacter()
 	CurrentPlayer = nullptr;
 	AIManager = nullptr;
 	BlackBoard = nullptr;
+	
 }
 
 // Called when the game starts or when spawned
@@ -27,7 +29,6 @@ void AAICharacter::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
 	LookAt();
-	//CalcVectorSafeDistance();
 }
 
 // Called to bind functionality to input
@@ -47,6 +48,7 @@ void AAICharacter::Init(AAIDirector* AImgr, AActor* Player, float safeDist, floa
 	BlackBoard = AIController->FindComponentByClass<UBlackboardComponent>();
 	BlackBoard->SetValueAsObject("Player", CurrentPlayer);
 	BlackBoard->SetValueAsBool("GotoPlayer", false);
+	_Life = 3;
 }
 
 void AAICharacter::CalcVectorSafeDistance()
@@ -76,6 +78,8 @@ FVector AAICharacter::CalcVector(FVector MyLocation, FVector target, float SafeD
 	float CurDistance; FVector Direction;
 	Difference.ToDirectionAndLength(Direction, CurDistance);
 	float TargetDistance = CurDistance - SafeDist;
+
+	//UE_LOG(LogTemp, Warning, TEXT("Direction x = %f // y = %f // z = %f"), Direction.X, Direction.Y, Direction.Z);
 	return MyLocation + Direction * TargetDistance;
 }
 
@@ -109,4 +113,29 @@ void AAICharacter::LookAt()
 
 	FRotator SmoothRotation = FMath::RInterpTo(GetActorRotation(), TargetRotation, GetWorld()->DeltaTimeSeconds, RotateSpeed);
 	SetActorRotation(SmoothRotation);
+}
+
+bool AAICharacter::AttackEnd()
+{
+	if (AIManager == nullptr)
+		return false;
+
+	this->isAttacking = false;
+	SetGoToPlayer(false);
+	AIManager->ChoiceGoToPlayer();
+	return true;
+}
+
+void AAICharacter::Death()
+{
+	UE_LOG(LogTemp, Warning, TEXT("DEATH AI"));
+
+	this->SetActorEnableCollision(false);
+
+	AAIControl*	AIController = Cast<AAIControl>(GetController());
+	AIController->BrainComponent->StopLogic("");
+
+	CurrentPlayer = nullptr;
+
+	AIManager->DeathAI(this);
 }
