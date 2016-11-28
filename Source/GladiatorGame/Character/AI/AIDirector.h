@@ -18,6 +18,7 @@ public:
 	virtual void Tick( float DeltaSeconds ) override;
 
 	void ChoiceGoToPlayer();
+	void DeathAI(AAICharacter* Target);
 
 	TArray<AAICharacter*> GetAIList() { return AIList; }
 

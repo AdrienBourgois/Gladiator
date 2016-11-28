@@ -27,6 +27,8 @@ public:
 
 	void MoveTo(FVector Target);
 	void LookAt();
+	virtual bool AttackEnd() override;
+	virtual void Death() override;
 
 	void SetGoToPlayer(bool value) const {BlackBoard->SetValueAsBool("GotoPlayer", value);}
 	FVector GetSafeLocation() const { return FSafeDistanceInBoard; }

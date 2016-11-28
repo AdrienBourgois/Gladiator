@@ -20,8 +20,8 @@ void AAIDirector::BeginPlay()
 		return;
 	CurrentPlayer = Cast<AActor>(UGameplayStatics::GetPlayerPawn(this, 0));
 
-	AIList.SetNum(SpawnPointsList.Num());
-	for (size_t i = 0; i < SpawnPointsList.Num(); ++i)
+	AIList.SetNum(NbEnemy);
+	for (size_t i = 0; i < NbEnemy; ++i)
 	{
 		FVector SpawnLocation = SpawnPointsList[i]->GetActorLocation();
 		AIList[i] = Cast<AAICharacter>(GetWorld()->SpawnActor(IAClass, &SpawnLocation, &FRotator::ZeroRotator));
@@ -34,12 +34,22 @@ void AAIDirector::BeginPlay()
 void AAIDirector::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
-
-	
 }
 
 void AAIDirector::ChoiceGoToPlayer()
 {
+	if (AIList.Num() <= 0)
+		return;
+
+	for (size_t i = 0; i < AIList.Num()-1; ++i)
+		AIList[i]->SetGoToPlayer(false);
+
 	int idx = FMath::RandRange(0, AIList.Num()-1);
 	AIList[idx]->SetGoToPlayer(true);
+}
+
+void AAIDirector::DeathAI(AAICharacter* Target)
+{
+	AIList.Remove(Target);
+	ChoiceGoToPlayer();
 }
