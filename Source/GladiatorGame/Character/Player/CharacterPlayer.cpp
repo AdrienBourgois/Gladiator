@@ -93,7 +93,12 @@ void ACharacterPlayer::VerticalMovement(float value)
 	if (isAttacking)
 		return;
 
-	FRotator cur_rotator = GetControlRotation();
+	FRotator cur_rotator;
+	if (!this->lockTarget)
+		cur_rotator = GetControlRotation();
+	else
+		cur_rotator = this->GetActorRotation();
+
 	cur_rotator.Pitch = 0.0f;
 	FVector dir_vector = cur_rotator.Vector();
 	AddMovementInput(dir_vector, value * speed * GetWorld()->GetDeltaSeconds());
@@ -105,7 +110,12 @@ void ACharacterPlayer::HorizontalMovement(float value)
 	if (isAttacking)
 		return;
 
-	FRotator cur_rotator = GetControlRotation();
+	FRotator cur_rotator;
+	if (!this->lockTarget)
+		cur_rotator = GetControlRotation();
+	else
+		cur_rotator = this->GetActorRotation(); 
+	
 	cur_rotator.Pitch = 0.0f;
 	FVector dir_vector = cur_rotator.RotateVector(FVector::RightVector.RotateAngleAxis(180.f, FVector::UpVector));
 	AddMovementInput(dir_vector, value * speed * GetWorld()->GetDeltaSeconds());
