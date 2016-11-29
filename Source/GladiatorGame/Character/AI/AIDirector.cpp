@@ -2,6 +2,7 @@
 
 #include "GladiatorGame.h"
 #include "AIDirector.h"
+#include "GladiatorGameState.h"
 
 
 AAIDirector::AAIDirector()
@@ -54,5 +55,8 @@ void AAIDirector::ChoiceGoToPlayer()
 void AAIDirector::DeathAI(AAICharacter* Target)
 {
 	AIList.Remove(Target);
+	//if (AIList.Num() <= 0)
+	//	Cast<AGladiatorGameState>(GetWorld()->GetGameState())->PlayerWin();
+
 	ChoiceGoToPlayer();
 }
