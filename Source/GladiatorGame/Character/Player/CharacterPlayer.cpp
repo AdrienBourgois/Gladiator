@@ -29,7 +29,6 @@ void ACharacterPlayer::Tick(float DeltaTime)
 bool ACharacterPlayer::AttackEnd()
 {
 	this->isAttacking = false;
-	InputComponent->BindAction("Attack", IE_Pressed, this, &ACharacterPlayer::Attack);
 	if (this->lockTarget)
 	{
 		this->UpdateEnemyMap();
@@ -108,7 +107,6 @@ void ACharacterPlayer::HorizontalMovement(float value)
 	cur_rotator.Pitch = 0.0f;
 	FVector dir_vector = cur_rotator.RotateVector(FVector::RightVector.RotateAngleAxis(180.f, FVector::UpVector));
 	AddMovementInput(dir_vector, value * speed * GetWorld()->GetDeltaSeconds());
-
 }
 
 
@@ -191,44 +189,42 @@ void ACharacterPlayer::SortEnemyMap()
 	TArray<float> keys = TArray<float>();
 	this->enemy_map.GetKeys(keys);
 
-	for (int i = 0; i < keys.Num(); ++i)
+	for (float key : keys)
 	{
-		float curfactor = this->GetActorPositionFactor(this->enemy_map[keys[i]]);
-		raw.Add(curfactor,this->enemy_map[keys[i]]);
+		float curfactor = this->GetActorPositionFactor(enemy_map[key]);
+		raw.Add(curfactor, enemy_map[key]);
 		factors.Add(curfactor);
 	}
 
 	factors.Sort();
 	this->enemy_map.Empty();
 
-	for (int i = 0; i < factors.Num(); ++i)
-	{
-		this->enemy_map.Add(factors[i], raw[factors[i]]);
-	}
+	for (float f : factors)
+		this->enemy_map.Add(f, raw[f]);
 }
 
 float ACharacterPlayer::GetActorPositionFactor(AActor* factorized)
 {
-	FVector pos = factorized->GetActorLocation();
-	float raw = ACharacterPlayer::GetAngleBetween(factorized->GetActorLocation() - this->GetActorLocation(), this->GetActorForwardVector());
+	FVector dir = factorized->GetActorLocation() - this->GetActorLocation();
+	float raw = ACharacterPlayer::GetAngleBetween(dir, this->GetActorForwardVector());
 	float ref = raw * this->GetLRFactor(this, factorized);
 	return ref;
 }
 
 AActor* ACharacterPlayer::FindForwardTarget()
 {
+	
 	TArray<float> keys = TArray<float>();
 	this->enemy_map.GetKeys(keys);
 
-	for (int i = 0; i < keys.Num(); ++i)
+	for (float ikey : keys)
 	{
 		bool isMin = true;
-		for (int j = 0; j < keys.Num(); ++j)
+		for (float jkey : keys)
 		{
-			if (i == j)
+			if (ikey == jkey)
 				continue;
-			
-			if (FMath::Abs(keys[i]) > FMath::Abs(keys[j]))
+			if (FMath::Abs(ikey) > FMath::Abs(jkey))
 			{
 				isMin = false;
 				break;
@@ -236,20 +232,19 @@ AActor* ACharacterPlayer::FindForwardTarget()
 		}
 		if (!isMin)
 			continue;
-
-		return this->enemy_map[keys[i]];
+		else
+			return enemy_map[ikey];
 	}
+
 	return nullptr;
 }
 
 void ACharacterPlayer::SwitchTarget(float value)
 {
-	if (isAttacking)
+	if (isAttacking || !this->lockTarget)
 		return;
 
 	int factor = FMath::Sign(value);
-	if (!this->lockTarget)
-		return;
 
 	TArray<float> keys = TArray<float>();
 	enemy_map.GetKeys(keys);
