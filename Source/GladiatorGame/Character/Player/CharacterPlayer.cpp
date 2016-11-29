@@ -3,23 +3,20 @@
 #include "GladiatorGame.h"
 #include "CharacterPlayer.h"
 
-class AAICharacter : public ACharacter{};
+class AAICharacter : public ABaseCharacter{};
 
 // --- ----- --- //
 
 #pragma region Default Functions
 
-// Sets default values
 ACharacterPlayer::ACharacterPlayer()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 }
 
 void ACharacterPlayer::BeginPlay()
 {
 	Super::BeginPlay();
-	//SetupInputs();
 	FindCamera();
 	len = FVector::Dist(this->cameraComponent->GetComponentLocation(), this->GetActorLocation());
 }
@@ -27,13 +24,19 @@ void ACharacterPlayer::BeginPlay()
 void ACharacterPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	this->DebugLock(this->lockTarget);
+	this->UpdateLock(this->lockTarget);
 }
 
 bool ACharacterPlayer::AttackEnd()
 {
 	this->isAttacking = false;
 	InputComponent->BindAction("Attack", IE_Pressed, this, &ACharacterPlayer::Attack);
+	if (this->lockTarget)
+	{
+		this->UpdateEnemyMap();
+		this->SortEnemyMap();
+		this->lockTarget = this->FindForwardTarget();
+	}
 	return true;
 }
 
@@ -52,26 +55,10 @@ void ACharacterPlayer::SetupPlayerInputComponent(class UInputComponent* InputCom
 	InputComponent->BindAxis("MoveVertical", this, &ACharacterPlayer::VerticalMovement);
 	InputComponent->BindAxis("MoveHorizontal", this, &ACharacterPlayer::HorizontalMovement);
 
-	//InputComponent->BindAxis("LockSwitch", this, &ACharacterPlayer::SwitchTarget);
+	InputComponent->BindAxis("LockSwitch", this, &ACharacterPlayer::SwitchTarget);
 
 	InputComponent->BindAction("Attack", IE_Pressed, this, &ACharacterPlayer::Attack);
 	InputComponent->BindAction("Lock", IE_Pressed, this, &ACharacterPlayer::CallLock);
-
-	InputComponent->BindAction("DebugSwitchLock", IE_Pressed, this, &ACharacterPlayer::SwitchTarget);
-}
-
-void ACharacterPlayer::SetupInputs()
-{
-	InputComponent->BindAxis("ViewVertical", this, &ACharacterPlayer::VerticalAxis);
-	InputComponent->BindAxis("ViewHorizontal", this, &ACharacterPlayer::HorizontalAxis);
-
-	InputComponent->BindAxis("MoveVertical", this, &ACharacterPlayer::VerticalMovement);
-	InputComponent->BindAxis("MoveHorizontal", this, &ACharacterPlayer::HorizontalMovement);
-
-	//InputComponent->BindAxis("LockSwitch", this, &ACharacterPlayer::SwitchTarget);
-
-	InputComponent->BindAction("Attack", IE_Pressed, this, &ACharacterPlayer::Attack);
-	//InputComponent->BindAction("Lock", IE_Pressed, this, &ACharacterPlayer::CallLock);
 }
 
 void ACharacterPlayer::VerticalAxis(float value)
@@ -90,7 +77,7 @@ void ACharacterPlayer::HorizontalAxis(float value)
 
 void ACharacterPlayer::VerticalMovement(float value)
 {
-	if (isAttacking)
+	if (isAttacking || _Life <= 0)
 		return;
 
 	FRotator cur_rotator;
@@ -107,7 +94,7 @@ void ACharacterPlayer::VerticalMovement(float value)
 
 void ACharacterPlayer::HorizontalMovement(float value)
 {
-	if (isAttacking)
+	if (isAttacking || _Life == 0)
 		return;
 
 	FRotator cur_rotator;
@@ -115,7 +102,7 @@ void ACharacterPlayer::HorizontalMovement(float value)
 		cur_rotator = GetControlRotation();
 	else
 		cur_rotator = this->GetActorRotation(); 
-	
+
 	cur_rotator.Pitch = 0.0f;
 	FVector dir_vector = cur_rotator.RotateVector(FVector::RightVector.RotateAngleAxis(180.f, FVector::UpVector));
 	AddMovementInput(dir_vector, value * speed * GetWorld()->GetDeltaSeconds());
@@ -195,7 +182,7 @@ void ACharacterPlayer::CheckDistance()
 		else
 		{
 			dir = -this->Controller->GetControlRotation().Vector();
-			this->cameraComponent->SetWorldLocation(this->GetActorLocation() + (dir.GetSafeNormal() * minLen * 2));
+			this->cameraComponent->SetWorldLocation(this->GetActorLocation() + (dir.GetSafeNormal() * minLen));
 		}
 	}
 
@@ -223,8 +210,8 @@ void ACharacterPlayer::CallLock()
 {
 	if (this->lockTarget == nullptr)
 	{
-		this->UpdateEnemyList();
-		this->SortEnemyList();
+		this->UpdateEnemyMap();
+		this->SortEnemyMap();
 		this->lockTarget = this->FindForwardTarget();
 	}
 	else
@@ -232,7 +219,7 @@ void ACharacterPlayer::CallLock()
 
 }
 
-void ACharacterPlayer::DebugLock(AActor* target)
+void ACharacterPlayer::UpdateLock(AActor* target)
 {
 	FVector pos;
 	if (target == nullptr)
@@ -244,38 +231,40 @@ void ACharacterPlayer::DebugLock(AActor* target)
 	DrawDebugCircle(GetWorld(), pos, 100.f, 64, FColor::Red, false, -1.f, 0.f, 10.f, axis, this->cameraComponent->GetUpVector(), false);
 
 	FVector2D lookatdir = FVector2D(pos) - FVector2D(this->GetActorLocation());
-	this->SetActorRotation(FRotationMatrix::MakeFromX(FVector(lookatdir, 0.f)).Rotator());
-
+	
+	FQuat rot =  FQuat::Slerp(this->GetActorQuat(), FRotationMatrix::MakeFromX(FVector(lookatdir, 0.f)).ToQuat(), .1f);
+	this->SetActorRotation(rot);
 }
 
-TArray<AActor*> ACharacterPlayer::UpdateEnemyList()
+TMap<float, AActor*> ACharacterPlayer::UpdateEnemyMap()
 {
-	this->enemy_array.Empty();
 	this->enemy_map.Empty();
 
 	for (TActorIterator<AAICharacter> enemy(GetWorld()); enemy; ++enemy)
 	{
 		AAICharacter* current = *enemy;
-		if (current->GetClass() != this->GetClass())
+		if (current->GetClass() != this->GetClass() && current->_Life > 0)
 		{
 			AActor* cur_actor = Cast<AActor>(current);
-			this->enemy_array.Add(cur_actor);
 			this->enemy_map.Add(this->GetActorPositionFactor(cur_actor), cur_actor);
 		}
 	}
 
-	return this->enemy_array;
+	return this->enemy_map;
 }
 
-void ACharacterPlayer::SortEnemyList()
+void ACharacterPlayer::SortEnemyMap()
 {
 	TMap< float, AActor*> raw = TMap< float, AActor*>();
 	TArray<float> factors = TArray<float>();
 
-	for (int i = 0; i < this->enemy_array.Num(); ++i)
+	TArray<float> keys = TArray<float>();
+	this->enemy_map.GetKeys(keys);
+
+	for (int i = 0; i < keys.Num(); ++i)
 	{
-		float curfactor = this->GetActorPositionFactor(this->enemy_array[i]);
-		raw.Add(curfactor,this->enemy_array[i]);
+		float curfactor = this->GetActorPositionFactor(this->enemy_map[keys[i]]);
+		raw.Add(curfactor,this->enemy_map[keys[i]]);
 		factors.Add(curfactor);
 	}
 
@@ -285,10 +274,7 @@ void ACharacterPlayer::SortEnemyList()
 	for (int i = 0; i < factors.Num(); ++i)
 	{
 		this->enemy_map.Add(factors[i], raw[factors[i]]);
-		this->enemy_array[factors.IndexOfByKey(factors[i])] = raw[factors[i]];
 	}
-
-	
 }
 
 float ACharacterPlayer::GetActorPositionFactor(AActor* factorized)
@@ -326,42 +312,12 @@ AActor* ACharacterPlayer::FindForwardTarget()
 	return nullptr;
 }
 
-AActor* ACharacterPlayer::FindNearestEnemyFrom(FVector pos)
+void ACharacterPlayer::SwitchTarget(float value)
 {
-	float minlen = FMath::Pow(ONE_METER, ONE_METER);
+	if (isAttacking)
+		return;
 
-	for (int i = 0; i < this->enemy_array.Num(); ++i)
-	{
-		AActor* actorI = this->enemy_array[i];
-		for (int j = 0; i < this->enemy_array.Num(); ++i)
-		{
-			AActor* actorJ = this->enemy_array[j];
-			if (actorI == actorJ)
-				continue;
-
-			minlen = FMath::Min(FVector::Dist(pos , actorI->GetActorLocation()), FVector::Dist(pos, actorJ->GetActorLocation()));
-		}
-	}
-
-	AActor* result = nullptr;
-
-	for (int i = 0; i < this->enemy_array.Num(); ++i)
-	{
-		AActor* actorI = this->enemy_array[i];
-		if (FVector::Dist(pos, actorI->GetActorLocation()))
-		{
-			result = actorI;
-			return result;
-		}
-	}
-
-	return result;
-}
-
-void ACharacterPlayer::SwitchTarget(/*float value*/)
-{
-	int value = 1;	//Waiting for fix on mouse wheel axis binding
-
+	int factor = FMath::Sign(value);
 	if (!this->lockTarget)
 		return;
 
@@ -369,7 +325,7 @@ void ACharacterPlayer::SwitchTarget(/*float value*/)
 	enemy_map.GetKeys(keys);
 	float curkey = *enemy_map.FindKey(this->lockTarget);
 
-	int idx = keys.IndexOfByKey(curkey) + value ;
+	int idx = keys.IndexOfByKey(curkey) + factor;
 	if (idx >= keys.Num())
 		idx = 0;
 	else if (idx < 0)

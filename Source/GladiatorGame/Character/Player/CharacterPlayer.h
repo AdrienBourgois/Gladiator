@@ -27,7 +27,6 @@ private:
 
 #pragma region Members
 
-	TArray<AActor*> enemy_array = TArray<AActor*>();
 	TMap<float, AActor*> enemy_map = TMap<float, AActor*>();
 	AActor* lockTarget = nullptr;
 
@@ -35,7 +34,7 @@ private:
 
 	UPROPERTY(EditAnywhere) UCameraComponent* cameraComponent = nullptr;
 	UPROPERTY(EditAnywhere) float sensitivity = 100.f;
-	UPROPERTY(EditAnywhere) float minLen = 100.f;
+	UPROPERTY(EditAnywhere) float minLen = 200.f;
 	float len = 0.f;
 
 #pragma endregion 
@@ -49,7 +48,6 @@ private:
 #pragma region Inputs
 
 	void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
-	void SetupInputs();
 
 	void VerticalAxis(float value);
 	void HorizontalAxis(float value);
@@ -80,16 +78,15 @@ private:
 
 	void CallLock();
 
-	void DebugLock(AActor* target = nullptr);
+	void UpdateLock(AActor* target = nullptr);
 
-	TArray<AActor*> UpdateEnemyList();
-	void SortEnemyList();
+	TMap<float, AActor*> UpdateEnemyMap();
+	void SortEnemyMap();
 	float GetActorPositionFactor(AActor* factorized);
 
 	AActor* FindForwardTarget();
-	AActor* FindNearestEnemyFrom(FVector pos);
 
-	void SwitchTarget(/*float value*/);
+	void SwitchTarget(float value);
 
 
 #pragma endregion
