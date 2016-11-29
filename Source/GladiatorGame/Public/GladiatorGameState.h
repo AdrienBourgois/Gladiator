@@ -12,8 +12,8 @@ UCLASS()
 class GLADIATORGAME_API AGladiatorGameState : public AGameState
 {
 	GENERATED_BODY()
-	
-	
-	
+
+	static void PlayerWin();
+	static void AIWin();
 	
 };
