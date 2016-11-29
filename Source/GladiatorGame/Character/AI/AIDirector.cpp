@@ -44,7 +44,7 @@ void AAIDirector::ChoiceGoToPlayer()
 
 	for (int i = 0; i < AIList.Num(); ++i)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("ChoiceGoToPlayer i = %d"), i);
+		
 		AIList[i]->SetGoToPlayer(false);
 	}
 
@@ -55,8 +55,10 @@ void AAIDirector::ChoiceGoToPlayer()
 void AAIDirector::DeathAI(AAICharacter* Target)
 {
 	AIList.Remove(Target);
-	//if (AIList.Num() <= 0)
-	//	Cast<AGladiatorGameState>(GetWorld()->GetGameState())->PlayerWin();
+	if (AIList.Num() <= 0)
+	{
+		Cast<AGladiatorGameState>(GetWorld()->GetGameState())->PlayerWin();
+	}
 
 	ChoiceGoToPlayer();
 }

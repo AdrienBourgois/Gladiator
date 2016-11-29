@@ -6,13 +6,12 @@
 
 void AGladiatorGameState::PlayerWin()
 {
-	/*FString CurrentLevel = GetWorld()->GetWorld()->GetCurrentLevel()->GetName();
-	UGameplayStatics::OpenLevel(GetWorld(), CurrentLevel);	
-*/
-//	GetWorld()->SetCurrentLevel(GetWorld()->GetCurrentLevel());
+	UE_LOG(LogTemp, Warning, TEXT("PLAYER WIN!!!!!!"));
+	UGameplayStatics::OpenLevel(GetWorld(), "AI_test");
 }
 
 void AGladiatorGameState::AIWin()
 {
-
+	UE_LOG(LogTemp, Warning, TEXT("AI WIN!!!!!!"));
+	UGameplayStatics::OpenLevel(GetWorld(), "AI_test");
 }
