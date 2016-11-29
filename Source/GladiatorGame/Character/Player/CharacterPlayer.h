@@ -34,8 +34,6 @@ private:
 
 	UPROPERTY(EditAnywhere) UCameraComponent* cameraComponent = nullptr;
 	UPROPERTY(EditAnywhere) float sensitivity = 100.f;
-	UPROPERTY(EditAnywhere) float minLen = 200.f;
-	float len = 0.f;
 
 #pragma endregion 
 

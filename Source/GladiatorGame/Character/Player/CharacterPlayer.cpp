@@ -81,7 +81,10 @@ void ACharacterPlayer::VerticalMovement(float value)
 	if (!this->lockTarget)
 		cur_rotator = GetControlRotation();
 	else
-		cur_rotator = this->GetActorRotation();
+	{
+		FVector2D lookatdir = (FVector2D(this->lockTarget->GetActorLocation()) - FVector2D(this->GetActorLocation())).GetSafeNormal();
+		cur_rotator = FRotationMatrix::MakeFromX(FVector(lookatdir, 0.f)).ToQuat().Rotator();
+	}
 
 	cur_rotator.Pitch = 0.0f;
 	FVector dir_vector = cur_rotator.Vector();
@@ -97,11 +100,15 @@ void ACharacterPlayer::HorizontalMovement(float value)
 	if (!this->lockTarget)
 		cur_rotator = GetControlRotation();
 	else
-		cur_rotator = this->GetActorRotation();
+	{
+		FVector2D lookatdir = (FVector2D(this->lockTarget->GetActorLocation()) - FVector2D(this->GetActorLocation())).GetSafeNormal();
+		cur_rotator = FRotationMatrix::MakeFromX(FVector(lookatdir, 0.f)).ToQuat().Rotator();
+	}
 
 	cur_rotator.Pitch = 0.0f;
 	FVector dir_vector = cur_rotator.RotateVector(FVector::RightVector.RotateAngleAxis(180.f, FVector::UpVector));
 	AddMovementInput(dir_vector, value * speed * GetWorld()->GetDeltaSeconds());
+
 }
 
 
