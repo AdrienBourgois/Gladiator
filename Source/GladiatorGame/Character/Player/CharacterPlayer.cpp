@@ -18,7 +18,6 @@ void ACharacterPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 	FindCamera();
-	len = FVector::Dist(this->cameraComponent->GetComponentLocation(), this->GetActorLocation());
 }
 
 void ACharacterPlayer::Tick(float DeltaTime)
@@ -65,14 +64,12 @@ void ACharacterPlayer::VerticalAxis(float value)
 {
 	float rotation = value * sensitivity * GetWorld()->GetDeltaSeconds();
 	AddControllerPitchInput(rotation);
-	this->AdaptView();
 }
 
 void ACharacterPlayer::HorizontalAxis(float value)
 {
 	float rotation = value * sensitivity * GetWorld()->GetDeltaSeconds();
 	AddControllerYawInput(rotation);
-	this->AdaptView();
 }
 
 void ACharacterPlayer::VerticalMovement(float value)
@@ -89,7 +86,6 @@ void ACharacterPlayer::VerticalMovement(float value)
 	cur_rotator.Pitch = 0.0f;
 	FVector dir_vector = cur_rotator.Vector();
 	AddMovementInput(dir_vector, value * speed * GetWorld()->GetDeltaSeconds());
-	this->AdaptView();
 }
 
 void ACharacterPlayer::HorizontalMovement(float value)
@@ -101,12 +97,11 @@ void ACharacterPlayer::HorizontalMovement(float value)
 	if (!this->lockTarget)
 		cur_rotator = GetControlRotation();
 	else
-		cur_rotator = this->GetActorRotation(); 
+		cur_rotator = this->GetActorRotation();
 
 	cur_rotator.Pitch = 0.0f;
 	FVector dir_vector = cur_rotator.RotateVector(FVector::RightVector.RotateAngleAxis(180.f, FVector::UpVector));
 	AddMovementInput(dir_vector, value * speed * GetWorld()->GetDeltaSeconds());
-	this->AdaptView();
 }
 
 
@@ -115,78 +110,6 @@ void ACharacterPlayer::HorizontalMovement(float value)
 // --- ----- --- //
 
 #pragma region Camera Control
-
-bool ACharacterPlayer::IsTargetViewable()
-{
-	if (!this->HasActiveCameraComponent() || !this->FindCamera())
-		return false;
-
-	FVector pos = this->cameraComponent->GetComponentLocation();
-	
-	TArray<FHitResult> results = TArray<FHitResult>();
-	GetWorld()->LineTraceMultiByChannel(results, pos, this->GetActorLocation(), ECollisionChannel::ECC_MAX);
-	for (int i =0; i < results.Num(); ++i)
-	{
-		FHitResult hit = results[i];
-
-		if (hit.Actor->GetClass()->IsChildOf(ABaseCharacter::StaticClass()))
-			continue;
-		return false;
-	}
-	return true;
-	
-}
-
-bool ACharacterPlayer::IsTargetInRange()
-{
-	FVector pos = this->cameraComponent->GetComponentLocation();
-	FHitResult result = FHitResult();
-
-	GetWorld()->LineTraceSingleByChannel(result, pos, this->GetActorLocation(), ECollisionChannel::ECC_WorldStatic);
-
-	return (result.Distance >= minLen);
-}
-
-void ACharacterPlayer::AdaptView()
-{
-	if (IsTargetViewable())
-	{
-		CheckDistance(); //Waiting for fix
-		return;
-	}
-	FVector pos = this->cameraComponent->GetComponentLocation();
-	FHitResult result = FHitResult();
-
-	GetWorld()->LineTraceSingleByChannel(result, pos, this->GetActorLocation(), ECollisionChannel::ECC_MAX);
-	AdaptFromCollision(result.ImpactPoint);
-}
-
-void ACharacterPlayer::AdaptFromCollision(FVector collider)
-{
-	if (this->cameraComponent && FVector::Dist(collider, this->GetActorLocation()) >= minLen)
-		this->cameraComponent->SetWorldLocation(collider);
-}
-
-void ACharacterPlayer::CheckDistance()
-{
-	float curdist = FVector::Dist(this->cameraComponent->GetComponentLocation(), this->GetActorLocation());
-	if (curdist < len)
-	{
-		FVector dir = this->cameraComponent->GetComponentLocation() - this->GetActorLocation();
-		
-		if (curdist >= minLen)
-		{
-			float factor = FMath::SmoothStep(0.f, len, curdist);
-			this->cameraComponent->SetWorldLocation(this->GetActorLocation() + (dir.GetSafeNormal() * len * factor));
-		}
-		else
-		{
-			dir = -this->Controller->GetControlRotation().Vector();
-			this->cameraComponent->SetWorldLocation(this->GetActorLocation() + (dir.GetSafeNormal() * minLen));
-		}
-	}
-
-}
 
 UCameraComponent* ACharacterPlayer::FindCamera()
 {

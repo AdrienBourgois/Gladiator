@@ -61,13 +61,6 @@ private:
 
 #pragma region Camera Control
 
-	bool IsTargetViewable();
-	bool IsTargetInRange();
-
-	void AdaptView();
-	void AdaptFromCollision(FVector collider);
-	void CheckDistance();
-
 	UCameraComponent* FindCamera();
 
 #pragma endregion
