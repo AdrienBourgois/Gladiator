@@ -18,6 +18,8 @@ void ACharacterPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 	FindCamera();
+	
+	this->DebugPrint();
 }
 
 void ACharacterPlayer::Tick(float DeltaTime)
@@ -287,5 +289,42 @@ int ACharacterPlayer::GetLRFactor(AActor* ref_actor, AActor* tested_actor)
 }
 
 #pragma endregion 
+
+// --- ----- --- //
+
+#pragma region Equipment Drop
+
+void ACharacterPlayer::DebugPrint()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, "Wololo?");
+
+	USkeletalMesh* mesh = Cast<USkeletalMesh>(this->GetMesh());
+	if (mesh)
+	{
+		TArray<USkeletalMeshSocket*> sockets=  mesh->GetActiveSocketList();
+		for (USkeletalMeshSocket* sock : sockets)
+			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Blue, sock->BoneName.ToString());
+	}
+
+
+	TArray<UActorComponent*> list = TArray<UActorComponent*>();
+	this->GetComponents(list);
+
+	for (UActorComponent* component : list)
+	{
+		//GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, component->GetName());
+		USceneComponent* converted = Cast<USceneComponent>(component);
+		if (!converted)
+			continue;
+		else
+		{
+			//GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, hit.Actor->GetName());
+			FString log = component->GetName() + ":" + converted->GetAttachSocketName().ToString() + ":" + FString::FromInt(converted->HasAnySockets());
+			GEngine->AddOnScreenDebugMessage(-1, 120.0f, FColor::Red, log);
+		}
+	}
+}
+
+#pragma endregion
 
 // --- ----- --- //

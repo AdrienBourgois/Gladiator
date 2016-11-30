@@ -91,6 +91,14 @@ private:
 
 #pragma endregion
 
+	// ----- //
+
+#pragma region Equipment Drop
+
+	void DebugPrint();
+
+#pragma endregion 
+
 	// --- ----- --- //
 
 #pragma endregion
