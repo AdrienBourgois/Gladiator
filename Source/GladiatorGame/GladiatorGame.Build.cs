@@ -6,7 +6,7 @@ public class GladiatorGame : ModuleRules
 {
 	public GladiatorGame(TargetInfo Target)
 	{
-        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "AIModule" });
+        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "AIModule", "UMG", "Slate", "SlateCore" });
 
         PrivateDependencyModuleNames.AddRange(new string[] { "AIModule", "GameplayTasks" });
         // Uncomment if you are using Slate UI
