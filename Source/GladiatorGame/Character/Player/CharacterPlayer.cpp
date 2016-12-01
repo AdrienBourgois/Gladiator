@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "GladiatorGame.h"
+#include "GladiatorGameController.h"
 #include "CharacterPlayer.h"
 
 class AAICharacter : public ABaseCharacter{};
@@ -11,6 +12,7 @@ class AAICharacter : public ABaseCharacter{};
 
 ACharacterPlayer::ACharacterPlayer()
 {
+	bReplicates = true;
 	PrimaryActorTick.bCanEverTick = true;
 }
 
@@ -19,6 +21,7 @@ void ACharacterPlayer::BeginPlay()
 	Super::BeginPlay();
 	FindCamera();
 	len = FVector::Dist(this->cameraComponent->GetComponentLocation(), this->GetActorLocation());
+
 }
 
 void ACharacterPlayer::Tick(float DeltaTime)
@@ -59,6 +62,7 @@ void ACharacterPlayer::SetupPlayerInputComponent(class UInputComponent* InputCom
 
 	InputComponent->BindAction("Attack", IE_Pressed, this, &ACharacterPlayer::Attack);
 	InputComponent->BindAction("Lock", IE_Pressed, this, &ACharacterPlayer::CallLock);
+	InputComponent->BindAction("OpenMenu", IE_Pressed, this, &ACharacterPlayer::DisplayNetworkMenu).bExecuteWhenPaused = true;
 }
 
 void ACharacterPlayer::VerticalAxis(float value)
@@ -364,3 +368,10 @@ int ACharacterPlayer::GetLRFactor(AActor* ref_actor, AActor* tested_actor)
 #pragma endregion 
 
 // --- ----- --- //
+
+void ACharacterPlayer::DisplayNetworkMenu()
+{
+	
+	UGameplayStatics::SetGamePaused(GetWorld(), true);
+	Cast<AGladiatorGameController>(GetController())->DisplayNetworkMenu();
+}

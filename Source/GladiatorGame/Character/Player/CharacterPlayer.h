@@ -104,4 +104,6 @@ private:
 
 #pragma endregion
 
+
+	void DisplayNetworkMenu();
 };

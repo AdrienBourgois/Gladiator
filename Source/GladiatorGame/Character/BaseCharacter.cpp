@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "GladiatorGame.h"
+#include "UnrealNetwork.h"
 #include "BaseCharacter.h"
 
 ABaseCharacter::ABaseCharacter()
@@ -9,6 +10,7 @@ ABaseCharacter::ABaseCharacter()
 ABaseCharacter::ABaseCharacter(int Life)
 {
 	_Life = Life;
+	
 }
 ABaseCharacter::~ABaseCharacter()
 {
