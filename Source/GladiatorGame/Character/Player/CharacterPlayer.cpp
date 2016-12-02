@@ -19,7 +19,6 @@ void ACharacterPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 	FindCamera();
-	
 	//this->DebugPrint();
 }
 

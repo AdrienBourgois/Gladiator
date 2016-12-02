@@ -145,7 +145,7 @@ AActor* ABaseCharacter::DropEquipment(USceneComponent* toDrop)
 
 AActor* ABaseCharacter::PopActorFromComponent(USkeletalMeshComponent* base)
 {
-	AActor* pop_actor = GetWorld()->SpawnActor<ASkeletalMeshActor>(base->GetComponentLocation(), base->GetComponentRotation());
+	AActor* pop_actor = GetWorld()->SpawnActor<ASkeletalMeshActor>(this->GetActorLocation() + base->GetComponentLocation(), base->GetComponentRotation());
 
 	UPrimitiveComponent* boxcomp = NewObject<UPrimitiveComponent>(pop_actor->GetRootComponent(), UBoxComponent::StaticClass());
 	USkeletalMeshComponent* meshcomp = Cast<USkeletalMeshComponent>(NewObject<UPrimitiveComponent>(boxcomp, USkeletalMeshComponent::StaticClass()));
@@ -171,5 +171,6 @@ AActor* ABaseCharacter::PopActorFromComponent(USkeletalMeshComponent* base)
 
 	base->SetVisibility(false);
 
+	pop_actor->SetActorLocation(this->GetActorLocation());
 	return pop_actor;
 }

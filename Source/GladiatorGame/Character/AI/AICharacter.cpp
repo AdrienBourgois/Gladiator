@@ -22,6 +22,7 @@ AAICharacter::AAICharacter()
 void AAICharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	this->InitEquipmentMap();
 }
 
 // Called every frame
