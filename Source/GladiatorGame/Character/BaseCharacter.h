@@ -30,4 +30,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly) int _Life = 5;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) bool isAttacking = false;
 
+	UPROPERTY(EditAnywhere) float dropRate = .5f;
+	UPROPERTY(EditAnywhere) float pickRadius = 100.f;
+
+	TMap<USceneComponent*, AActor*> equipment = TMap<USceneComponent*, AActor*>();
+
+	void InitEquipmentMap();
+
+	void RandomDrop();
+	
+	void TryPickEquipment();
+	void PickEquipment(AActor* picked);
+
+	AActor* DropEquipment(USceneComponent* toDrop);
+	AActor* PopActorFromComponent(USkeletalMeshComponent* base);
 };

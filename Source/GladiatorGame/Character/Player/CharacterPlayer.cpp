@@ -2,6 +2,7 @@
 
 #include "GladiatorGame.h"
 #include "CharacterPlayer.h"
+#include "Animation/SkeletalMeshActor.h"
 
 class AAICharacter : public ABaseCharacter{};
 
@@ -19,7 +20,7 @@ void ACharacterPlayer::BeginPlay()
 	Super::BeginPlay();
 	FindCamera();
 	
-	this->DebugPrint();
+	//this->DebugPrint();
 }
 
 void ACharacterPlayer::Tick(float DeltaTime)
@@ -296,31 +297,51 @@ int ACharacterPlayer::GetLRFactor(AActor* ref_actor, AActor* tested_actor)
 
 void ACharacterPlayer::DebugPrint()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, "Wololo?");
-
-	USkeletalMesh* mesh = Cast<USkeletalMesh>(this->GetMesh());
-	if (mesh)
-	{
-		TArray<USkeletalMeshSocket*> sockets=  mesh->GetActiveSocketList();
-		for (USkeletalMeshSocket* sock : sockets)
-			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Blue, sock->BoneName.ToString());
-	}
-
-
 	TArray<UActorComponent*> list = TArray<UActorComponent*>();
 	this->GetComponents(list);
 
 	for (UActorComponent* component : list)
 	{
-		//GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, component->GetName());
 		USceneComponent* converted = Cast<USceneComponent>(component);
 		if (!converted)
 			continue;
 		else
 		{
-			//GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, hit.Actor->GetName());
-			FString log = component->GetName() + ":" + converted->GetAttachSocketName().ToString() + ":" + FString::FromInt(converted->HasAnySockets());
-			GEngine->AddOnScreenDebugMessage(-1, 120.0f, FColor::Red, log);
+			if (converted->HasAnySockets() && converted->GetAttachSocketName() != "None")
+			{
+				FString log = component->GetName() + ":"  + converted->GetClass()->GetName() + ":" + converted->GetAttachSocketName().ToString();
+				FName socket_name = converted->GetAttachSocketName();
+				GEngine->AddOnScreenDebugMessage(-1, 120.0f, FColor::Red, log);
+				
+				AActor* pop_actor = GetWorld()->SpawnActor<ASkeletalMeshActor>(converted->GetComponentLocation(), converted->GetComponentRotation());
+
+				UPrimitiveComponent* boxcomp = NewObject<UPrimitiveComponent>(pop_actor->GetRootComponent(), UBoxComponent::StaticClass());
+				USkeletalMeshComponent* meshcomp = Cast<USkeletalMeshComponent>(NewObject<UPrimitiveComponent>(boxcomp, USkeletalMeshComponent::StaticClass()));
+				USkeletalMeshComponent* component = Cast<USkeletalMeshComponent>(converted);
+
+				if (component)
+					meshcomp->SetSkeletalMesh(component->SkeletalMesh);
+					
+				meshcomp->RegisterComponent();
+				meshcomp->Activate();
+				
+				boxcomp->RegisterComponent();
+				boxcomp->Activate();
+
+				meshcomp->SnapTo(boxcomp);
+
+				boxcomp->SetWorldTransform(converted->GetComponentTransform());
+
+				Cast<UBoxComponent>(boxcomp)->SetBoxExtent(component->SkeletalMesh->GetImportedBounds().BoxExtent * .5f);
+				Cast<UBoxComponent>(boxcomp)->SetCollisionProfileName(TEXT("Droppable"));
+				meshcomp->SetCollisionProfileName(TEXT("Droppable"));
+
+				boxcomp->SetSimulatePhysics(true);
+				boxcomp->SetHiddenInGame(false);
+				
+				converted->SetVisibility(false);
+
+			}
 		}
 	}
 }
