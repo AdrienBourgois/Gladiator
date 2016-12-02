@@ -31,13 +31,14 @@ void AGladiatorGameController::DisplayNetworkMenu()
 		return;
 	if (NetworkMenuIsVisible)
 	{
+		UGameplayStatics::SetGamePaused(GetWorld(), false);
 		NetworkMenuIsVisible = false;
 		NetworkMenu->SetVisibility(ESlateVisibility::Hidden);
 		bShowMouseCursor = false;
 	}
 	else
 	{
-		
+		UGameplayStatics::SetGamePaused(GetWorld(), true);
 		NetworkMenuIsVisible = true;
 		NetworkMenu->SetVisibility(ESlateVisibility::Visible);
 		bShowMouseCursor = true;

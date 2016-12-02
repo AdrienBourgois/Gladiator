@@ -12,7 +12,6 @@ class AAICharacter : public ABaseCharacter{};
 
 ACharacterPlayer::ACharacterPlayer()
 {
-	bReplicates = true;
 	PrimaryActorTick.bCanEverTick = true;
 }
 
@@ -33,7 +32,6 @@ void ACharacterPlayer::Tick(float DeltaTime)
 bool ACharacterPlayer::AttackEnd()
 {
 	this->isAttacking = false;
-	InputComponent->BindAction("Attack", IE_Pressed, this, &ACharacterPlayer::Attack);
 	if (this->lockTarget)
 	{
 		this->UpdateEnemyMap();
@@ -371,7 +369,5 @@ int ACharacterPlayer::GetLRFactor(AActor* ref_actor, AActor* tested_actor)
 
 void ACharacterPlayer::DisplayNetworkMenu()
 {
-	
-	UGameplayStatics::SetGamePaused(GetWorld(), true);
 	Cast<AGladiatorGameController>(GetController())->DisplayNetworkMenu();
 }

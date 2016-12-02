@@ -6,19 +6,68 @@
 
 ABaseCharacter::ABaseCharacter()
 {
+	SetLife(5);
+	bReplicates = true;
 }
 ABaseCharacter::ABaseCharacter(int Life)
 {
-	_Life = Life;
-	
+	SetLife(Life);
+	bReplicates = true;
 }
 ABaseCharacter::~ABaseCharacter()
 {
 }
 
+void ABaseCharacter::GetLifetimeReplicatedProps(TArray < FLifetimeProperty > & OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ABaseCharacter, isAttacking);
+	DOREPLIFETIME(ABaseCharacter, _Life);
+}
+
+void ABaseCharacter::SetLife(int Life)
+{
+	_Life = Life;
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Life = %d"), _Life));
+	if (Role < ROLE_Authority)
+	{
+		ServSetLife(Life);
+	}
+}
+
+void ABaseCharacter::ServSetLife_Implementation(int Life)
+{
+	SetLife(Life);
+}
+
+bool ABaseCharacter::ServSetLife_Validate(int Life)
+{
+	return true;
+}
+
+void ABaseCharacter::SetIsAttacking(bool bNewSomeBool)
+{
+	isAttacking = bNewSomeBool;
+	if (Role < ROLE_Authority)
+	{
+		ServSetIsAttacking(bNewSomeBool);
+	}
+}
+
+void ABaseCharacter::ServSetIsAttacking_Implementation(bool bNewSomeBool)
+{
+	SetIsAttacking(bNewSomeBool);
+}
+
+bool ABaseCharacter::ServSetIsAttacking_Validate(bool bNewSomeBool)
+{
+	return true;
+}
+
 void ABaseCharacter::Attack()
 {
-	this->isAttacking = true;
+	this->SetIsAttacking(true);
 }
 
 void ABaseCharacter::ReceiveDamage(int dmg)
@@ -37,8 +86,6 @@ bool ABaseCharacter::HammerHit()
 		ECollisionChannel::ECC_MAX,
 		FCollisionShape::MakeSphere(ONE_METER*.5f));
 
-	//DrawDebugSphere(GetWorld(), this->GetActorLocation() + this->GetActorForwardVector() * ONE_METER, ONE_METER*.5f, 32, FColor::Blue, false, 2.f);
-
 	for (int i = 0; i < results.Num(); ++i)
 	{
 		FOverlapResult hit = results[i];
@@ -46,7 +93,7 @@ bool ABaseCharacter::HammerHit()
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, hit.Actor->GetName());
 
-			if (hit.Actor->GetClass() != this->GetClass())
+			if (hit.Actor != this)
 			{
 				ABaseCharacter* enemy = Cast<ABaseCharacter>(hit.GetActor());
 				if (enemy != nullptr)
@@ -61,7 +108,7 @@ bool ABaseCharacter::HammerHit()
 
 bool ABaseCharacter::AttackEnd()
 {
-	this->isAttacking = false;
+	SetIsAttacking(false);
 	return true;
 }
 

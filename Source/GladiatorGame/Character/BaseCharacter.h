@@ -27,7 +27,20 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Character Attack") virtual bool HammerHit();
 	UFUNCTION(BlueprintCallable, Category = "Character Attack") virtual bool AttackEnd();
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly) int _Life = 5;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite) bool isAttacking = false;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated) int _Life = 5;
+	void SetLife(int Life);
+	UFUNCTION(reliable, server, WithValidation)
+		void ServSetLife(int Life);
+		void ServSetLife_Implementation(int Life);
+		bool ServSetLife_Validate(int Life);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated) bool isAttacking = false;
+	void SetIsAttacking(bool bNewSomeBool);
+	UFUNCTION(reliable, server, WithValidation)
+		void ServSetIsAttacking(bool bNewSomeBool);
+		void ServSetIsAttacking_Implementation(bool bNewSomeBool);
+		bool ServSetIsAttacking_Validate(bool bNewSomeBool);
+
+	virtual void GetLifetimeReplicatedProps(TArray < FLifetimeProperty > & OutLifetimeProps) const;
 
 };
