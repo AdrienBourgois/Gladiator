@@ -95,8 +95,6 @@ void ABaseCharacter::InitEquipmentMap()
 	}
 }
 
-
-
 void ABaseCharacter::RandomDrop()
 {
 	float rand = FMath::FRandRange(0.f, 1.f);
@@ -120,7 +118,6 @@ void ABaseCharacter::TryPickEquipment()
 		if (equipment[key] != nullptr)
 			if (FVector::Dist(equipment[key]->GetActorLocation(), this->GetActorLocation()) <= this->pickRadius)
 				PickEquipment(equipment[key]);
-
 }
 
 void ABaseCharacter::PickEquipment(AActor* picked)
@@ -160,14 +157,14 @@ AActor* ABaseCharacter::PopActorFromComponent(USkeletalMeshComponent* base)
 
 	meshcomp->SnapTo(boxcomp);
 
-	boxcomp->SetWorldTransform(base->GetComponentTransform());
-
 	Cast<UBoxComponent>(boxcomp)->SetBoxExtent(base->SkeletalMesh->GetImportedBounds().BoxExtent * .5f);
 	Cast<UBoxComponent>(boxcomp)->SetCollisionProfileName(TEXT("Droppable"));
 	meshcomp->SetCollisionProfileName(TEXT("Droppable"));
 
 	boxcomp->SetSimulatePhysics(true);
 	boxcomp->SetHiddenInGame(false);
+	
+	boxcomp->SetWorldTransform(base->GetComponentTransform());
 
 	base->SetVisibility(false);
 
