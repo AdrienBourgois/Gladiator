@@ -19,6 +19,8 @@ void ACharacterPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 	FindCamera();
+	for (int i = 0; i < 10; i++)
+		this->RandomDrop();
 	//this->DebugPrint();
 }
 
@@ -59,6 +61,7 @@ void ACharacterPlayer::SetupPlayerInputComponent(class UInputComponent* InputCom
 
 	InputComponent->BindAction("Attack", IE_Pressed, this, &ACharacterPlayer::Attack);
 	InputComponent->BindAction("Lock", IE_Pressed, this, &ACharacterPlayer::CallLock);
+	InputComponent->BindAction("Interact", IE_Pressed, this, &ACharacterPlayer::TryPickEquipment);
 }
 
 void ACharacterPlayer::VerticalAxis(float value)

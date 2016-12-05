@@ -16,14 +16,30 @@ ABaseCharacter::~ABaseCharacter()
 {
 }
 
+void ABaseCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	this->InitEquipmentMap();
+}
+
 void ABaseCharacter::Attack()
 {
+	if (this->weaponRef)
+		if (this->equipment[weaponRef] != nullptr)
+			return;
+
 	this->isAttacking = true;
 }
 
 void ABaseCharacter::ReceiveDamage(int dmg)
 {
-	this->_Life -= dmg;
+	float multiplier = 1.f;
+
+	if (this->shieldRef)
+		if (this->equipment[shieldRef] != nullptr)
+			multiplier = 2.f;
+
+	this->_Life -= dmg * multiplier;
 	this->RandomDrop();
 	if (this->_Life <= 0)
 		this->Death();
@@ -91,6 +107,14 @@ void ABaseCharacter::InitEquipmentMap()
 		{
 			if (converted->HasAnySockets() && converted->GetAttachSocketName() != "None")
 				equipment.Add(converted, nullptr);
+			USkeletalMeshComponent* skeletal_mesh_component = Cast<USkeletalMeshComponent>(converted);
+			if (skeletal_mesh_component)
+			{
+				if (skeletal_mesh_component->SkeletalMesh == weaponMeshRef)
+					weaponRef = converted;
+				if (skeletal_mesh_component->SkeletalMesh == shieldMeshRef)
+					shieldRef = converted;
+			}
 		}
 	}
 }
@@ -116,9 +140,14 @@ void ABaseCharacter::TryPickEquipment()
 
 	for (USceneComponent* key : keys)
 		if (equipment[key] != nullptr)
-			if (FVector::Dist(equipment[key]->GetActorLocation(), this->GetActorLocation()) <= this->pickRadius)
-				PickEquipment(equipment[key]);
+		{
+			USceneComponent* collider = Cast<USceneComponent>(equipment[key]->GetComponentByClass(UBoxComponent::StaticClass()));
+			if (collider)
+				if (FVector::Dist(collider->GetComponentLocation(), this->GetActorLocation()) <= this->pickRadius)
+					PickEquipment(equipment[key]);
+		}
 }
+
 
 void ABaseCharacter::PickEquipment(AActor* picked)
 {
@@ -126,7 +155,10 @@ void ABaseCharacter::PickEquipment(AActor* picked)
 	
 	for (USceneComponent* key : keys)
 		if (equipment[key] == picked)
+		{
 			equipment[key] = nullptr;
+			key->SetVisibility(true);
+		}
 
 	picked->Destroy();
 }
@@ -164,10 +196,19 @@ AActor* ABaseCharacter::PopActorFromComponent(USkeletalMeshComponent* base)
 	boxcomp->SetSimulatePhysics(true);
 	boxcomp->SetHiddenInGame(false);
 	
+	pop_actor->SetActorLocation(base->GetComponentLocation());
 	boxcomp->SetWorldTransform(base->GetComponentTransform());
+
+	FVector dropdir = this->GetActorUpVector() * 1.5f - this->GetActorForwardVector();
+	FVector dropRot = -GetActorRightVector()* FMath::FRandRange(100.f, 300.f) + GetActorUpVector() * FMath::FRandRange(-300.f, 300.f);
+
+	dropdir = dropdir.RotateAngleAxis(FMath::FRandRange(-10.f, 10.f), this->GetActorUpVector());
+	dropdir = dropdir.RotateAngleAxis(FMath::FRandRange(0.f, 45.f), this->GetActorRightVector());
+
+	boxcomp->SetPhysicsAngularVelocity(dropRot);
+	boxcomp->SetPhysicsLinearVelocity(dropdir * 300.f);
 
 	base->SetVisibility(false);
 
-	pop_actor->SetActorLocation(this->GetActorLocation());
 	return pop_actor;
 }
