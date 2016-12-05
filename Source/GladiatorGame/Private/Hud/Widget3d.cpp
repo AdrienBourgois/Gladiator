@@ -6,7 +6,7 @@ UWidget3d::UWidget3d()
 {
     // Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
     // off to improve performance if you don't need them.
-    PrimaryComponentTick.bCanEverTick = false;
+    PrimaryComponentTick.bCanEverTick = true;
 
     // ...
 }
@@ -26,11 +26,22 @@ void UWidget3d::TickComponent( float DeltaTime, ELevelTick TickType, FActorCompo
 
     // ...
 
-    if(widget_component && actor_to_follow)
-        widget_component->SetWorldLocation(actor_to_follow->GetActorLocation() + relative_location_from_actor);
+    if (widget_component)
+    {
+        if(actor_to_follow)
+            widget_component->SetWorldLocation(actor_to_follow->GetActorLocation() + relative_location_from_actor);
+
+        if (camera_manager)
+        {
+            FVector delta_position = camera_manager->GetCameraLocation() - widget_component->GetComponentLocation();
+            delta_position.Normalize();
+            FRotator rotation = delta_position.Rotation();
+            widget_component->SetWorldRotation(rotation);
+        }
+    }
 }
 
-void UWidget3d::Follow(TSubclassOf<UUserWidget> _type, FVector _relative_location)
+void UWidget3d::Follow(TSubclassOf<UUserWidget> _type, int init_value, FVector _relative_location)
 {
     PrimaryComponentTick.bCanEverTick = true;
 
@@ -45,7 +56,7 @@ void UWidget3d::Follow(TSubclassOf<UUserWidget> _type, FVector _relative_locatio
     widget_component->RegisterComponent();
     widget_instance = widget_component->GetUserWidgetObject();
 
-    //UE_LOG(LogTemp, Warning, TEXT("Owner : %s"), *widget_component->GetOwner()->GetName());
+    IWidgetInterface::Execute_InitWidget(widget_component->GetUserWidgetObject(), init_value);
 
-    PrimaryComponentTick.bCanEverTick = true;
+    camera_manager = GetWorld()->GetFirstPlayerController()->PlayerCameraManager;
 }
