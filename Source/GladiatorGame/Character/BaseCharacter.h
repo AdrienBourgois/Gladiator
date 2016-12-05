@@ -19,6 +19,8 @@ public:
 	ABaseCharacter(int Life);
 	virtual ~ABaseCharacter();
 	
+	virtual void BeginPlay();
+
 	virtual void Attack();
 	virtual void ReceiveDamage(int dmg = 1);
 	virtual void Death();

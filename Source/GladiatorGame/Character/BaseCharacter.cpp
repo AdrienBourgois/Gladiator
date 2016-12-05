@@ -16,6 +16,12 @@ ABaseCharacter::~ABaseCharacter()
 {
 }
 
+void ABaseCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	this->InitEquipmentMap();
+}
+
 void ABaseCharacter::Attack()
 {
 	this->isAttacking = true;
@@ -116,9 +122,14 @@ void ABaseCharacter::TryPickEquipment()
 
 	for (USceneComponent* key : keys)
 		if (equipment[key] != nullptr)
-			if (FVector::Dist(equipment[key]->GetActorLocation(), this->GetActorLocation()) <= this->pickRadius)
-				PickEquipment(equipment[key]);
+		{
+			USceneComponent* collider = Cast<USceneComponent>(equipment[key]->GetComponentByClass(UBoxComponent::StaticClass()));
+			if (collider)
+				if (FVector::Dist(collider->GetComponentLocation(), this->GetActorLocation()) <= this->pickRadius)
+					PickEquipment(equipment[key]);
+		}
 }
+
 
 void ABaseCharacter::PickEquipment(AActor* picked)
 {
@@ -126,7 +137,10 @@ void ABaseCharacter::PickEquipment(AActor* picked)
 	
 	for (USceneComponent* key : keys)
 		if (equipment[key] == picked)
+		{
 			equipment[key] = nullptr;
+			key->SetVisibility(true);
+		}
 
 	picked->Destroy();
 }
