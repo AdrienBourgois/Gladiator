@@ -31,8 +31,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "C++ Function")
 	void Follow(TSubclassOf<UUserWidget> _type, FVector _relative_location = FVector(0.f, 0.f, 100.f));
 
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widget")
-	//EWidgetType type = EWidgetType::LifeBar;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widget")
+	EWidgetType type = EWidgetType::LifeBar;
 
 	//TSubclassOf<class UUserWidget> widget_template_class;
 	UUserWidget* widget_instance = nullptr;

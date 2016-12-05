@@ -41,6 +41,7 @@ void UWidget3d::Follow(TSubclassOf<UUserWidget> _type, FVector _relative_locatio
     widget_component->SetWidgetClass(_type);
     widget_component->SetWorldLocation(actor_to_follow->GetActorLocation() + relative_location_from_actor);
     widget_component->SetDrawSize(FVector2D(200, 50));
+    widget_component->SetVisibility(true);
     widget_component->RegisterComponent();
     widget_instance = widget_component->GetUserWidgetObject();
 
