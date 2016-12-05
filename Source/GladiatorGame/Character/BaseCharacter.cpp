@@ -164,10 +164,19 @@ AActor* ABaseCharacter::PopActorFromComponent(USkeletalMeshComponent* base)
 	boxcomp->SetSimulatePhysics(true);
 	boxcomp->SetHiddenInGame(false);
 	
+	pop_actor->SetActorLocation(base->GetComponentLocation());
 	boxcomp->SetWorldTransform(base->GetComponentTransform());
+
+	FVector dropdir = this->GetActorUpVector() * 1.5f - this->GetActorForwardVector();
+	FVector dropRot = -GetActorRightVector()* FMath::FRandRange(100.f, 300.f) + GetActorUpVector() * FMath::FRandRange(-300.f, 300.f);
+
+	dropdir = dropdir.RotateAngleAxis(FMath::FRandRange(-10.f, 10.f), this->GetActorUpVector());
+	dropdir = dropdir.RotateAngleAxis(FMath::FRandRange(0.f, 45.f), this->GetActorRightVector());
+
+	boxcomp->SetPhysicsAngularVelocity(dropRot);
+	boxcomp->SetPhysicsLinearVelocity(dropdir * 300.f);
 
 	base->SetVisibility(false);
 
-	pop_actor->SetActorLocation(this->GetActorLocation());
 	return pop_actor;
 }
