@@ -24,12 +24,22 @@ void ABaseCharacter::BeginPlay()
 
 void ABaseCharacter::Attack()
 {
+	if (this->weaponRef)
+		if (this->equipment[weaponRef] != nullptr)
+			return;
+
 	this->isAttacking = true;
 }
 
 void ABaseCharacter::ReceiveDamage(int dmg)
 {
-	this->_Life -= dmg;
+	float multiplier = 1.f;
+
+	if (this->shieldRef)
+		if (this->equipment[shieldRef] != nullptr)
+			multiplier = 2.f;
+
+	this->_Life -= dmg * multiplier;
 	this->RandomDrop();
 	if (this->_Life <= 0)
 		this->Death();
@@ -97,6 +107,14 @@ void ABaseCharacter::InitEquipmentMap()
 		{
 			if (converted->HasAnySockets() && converted->GetAttachSocketName() != "None")
 				equipment.Add(converted, nullptr);
+			USkeletalMeshComponent* skeletal_mesh_component = Cast<USkeletalMeshComponent>(converted);
+			if (skeletal_mesh_component)
+			{
+				if (skeletal_mesh_component->SkeletalMesh == weaponMeshRef)
+					weaponRef = converted;
+				if (skeletal_mesh_component->SkeletalMesh == shieldMeshRef)
+					shieldRef = converted;
+			}
 		}
 	}
 }
