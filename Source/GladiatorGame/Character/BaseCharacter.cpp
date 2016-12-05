@@ -29,7 +29,6 @@ void ABaseCharacter::GetLifetimeReplicatedProps(TArray < FLifetimeProperty > & O
 void ABaseCharacter::SetLife(int Life)
 {
 	_Life = Life;
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Life = %d"), _Life));
 	if (Role < ROLE_Authority)
 	{
 		ServSetLife(Life);
@@ -79,29 +78,26 @@ void ABaseCharacter::ReceiveDamage(int dmg)
 
 bool ABaseCharacter::HammerHit()
 {
+	if (Role < ROLE_Authority)
+		return true;
 	TArray<FOverlapResult> results;
 	this->GetWorld()->OverlapMultiByChannel(results,
 		this->GetActorLocation() + this->GetActorForwardVector() * ONE_METER,
 		this->GetActorRotation().Quaternion(),
 		ECollisionChannel::ECC_MAX,
 		FCollisionShape::MakeSphere(ONE_METER*.5f));
-
 	for (int i = 0; i < results.Num(); ++i)
 	{
 		FOverlapResult hit = results[i];
 		if (hit.Actor->GetClass()->IsChildOf(ABaseCharacter::StaticClass()))
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, hit.Actor->GetName());
-
 			if (hit.Actor != this)
 			{
 				ABaseCharacter* enemy = Cast<ABaseCharacter>(hit.GetActor());
-				if (enemy != nullptr)
+				if (enemy != nullptr && enemy != this)
 					enemy->ReceiveDamage();
 			}
-
 		}
-
 	}
 	return true;
 }
@@ -114,6 +110,7 @@ bool ABaseCharacter::AttackEnd()
 
 void ABaseCharacter::Death()
 {
+	SetLife(_Life);
 	this->SetActorEnableCollision(false);
 }
 

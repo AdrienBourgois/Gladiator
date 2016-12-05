@@ -42,5 +42,4 @@ public:
 		bool ServSetIsAttacking_Validate(bool bNewSomeBool);
 
 	virtual void GetLifetimeReplicatedProps(TArray < FLifetimeProperty > & OutLifetimeProps) const;
-
 };
