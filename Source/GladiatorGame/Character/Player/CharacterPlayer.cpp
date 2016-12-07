@@ -3,6 +3,7 @@
 #include "GladiatorGame.h"
 #include "GladiatorGameController.h"
 #include "CharacterPlayer.h"
+#include "Animation/SkeletalMeshActor.h"
 
 class AAICharacter : public ABaseCharacter{};
 
@@ -19,8 +20,8 @@ void ACharacterPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 	FindCamera();
-	len = FVector::Dist(this->cameraComponent->GetComponentLocation(), this->GetActorLocation());
-
+	for (int i = 0; i < 10; i++)
+		this->RandomDrop();
 }
 
 void ACharacterPlayer::Tick(float DeltaTime)
@@ -60,21 +61,19 @@ void ACharacterPlayer::SetupPlayerInputComponent(class UInputComponent* InputCom
 
 	InputComponent->BindAction("Attack", IE_Pressed, this, &ACharacterPlayer::Attack);
 	InputComponent->BindAction("Lock", IE_Pressed, this, &ACharacterPlayer::CallLock);
-	InputComponent->BindAction("OpenMenu", IE_Pressed, this, &ACharacterPlayer::DisplayNetworkMenu).bExecuteWhenPaused = true;
+	InputComponent->BindAction("Interact", IE_Pressed, this, &ACharacterPlayer::TryPickEquipment);
 }
 
 void ACharacterPlayer::VerticalAxis(float value)
 {
 	float rotation = value * sensitivity * GetWorld()->GetDeltaSeconds();
 	AddControllerPitchInput(rotation);
-	this->AdaptView();
 }
 
 void ACharacterPlayer::HorizontalAxis(float value)
 {
 	float rotation = value * sensitivity * GetWorld()->GetDeltaSeconds();
 	AddControllerYawInput(rotation);
-	this->AdaptView();
 }
 
 void ACharacterPlayer::VerticalMovement(float value)
@@ -86,12 +85,14 @@ void ACharacterPlayer::VerticalMovement(float value)
 	if (!this->lockTarget)
 		cur_rotator = GetControlRotation();
 	else
-		cur_rotator = this->GetActorRotation();
+	{
+		FVector2D lookatdir = (FVector2D(this->lockTarget->GetActorLocation()) - FVector2D(this->GetActorLocation())).GetSafeNormal();
+		cur_rotator = FRotationMatrix::MakeFromX(FVector(lookatdir, 0.f)).ToQuat().Rotator();
+	}
 
 	cur_rotator.Pitch = 0.0f;
 	FVector dir_vector = cur_rotator.Vector();
 	AddMovementInput(dir_vector, value * speed * GetWorld()->GetDeltaSeconds());
-	this->AdaptView();
 }
 
 void ACharacterPlayer::HorizontalMovement(float value)
@@ -103,12 +104,14 @@ void ACharacterPlayer::HorizontalMovement(float value)
 	if (!this->lockTarget)
 		cur_rotator = GetControlRotation();
 	else
-		cur_rotator = this->GetActorRotation(); 
+	{
+		FVector2D lookatdir = (FVector2D(this->lockTarget->GetActorLocation()) - FVector2D(this->GetActorLocation())).GetSafeNormal();
+		cur_rotator = FRotationMatrix::MakeFromX(FVector(lookatdir, 0.f)).ToQuat().Rotator();
+	}
 
 	cur_rotator.Pitch = 0.0f;
 	FVector dir_vector = cur_rotator.RotateVector(FVector::RightVector.RotateAngleAxis(180.f, FVector::UpVector));
 	AddMovementInput(dir_vector, value * speed * GetWorld()->GetDeltaSeconds());
-	this->AdaptView();
 }
 
 
@@ -117,78 +120,6 @@ void ACharacterPlayer::HorizontalMovement(float value)
 // --- ----- --- //
 
 #pragma region Camera Control
-
-bool ACharacterPlayer::IsTargetViewable()
-{
-	if (!this->HasActiveCameraComponent() || !this->FindCamera())
-		return false;
-
-	FVector pos = this->cameraComponent->GetComponentLocation();
-	
-	TArray<FHitResult> results = TArray<FHitResult>();
-	GetWorld()->LineTraceMultiByChannel(results, pos, this->GetActorLocation(), ECollisionChannel::ECC_MAX);
-	for (int i =0; i < results.Num(); ++i)
-	{
-		FHitResult hit = results[i];
-
-		if (hit.Actor->GetClass()->IsChildOf(ABaseCharacter::StaticClass()))
-			continue;
-		return false;
-	}
-	return true;
-	
-}
-
-bool ACharacterPlayer::IsTargetInRange()
-{
-	FVector pos = this->cameraComponent->GetComponentLocation();
-	FHitResult result = FHitResult();
-
-	GetWorld()->LineTraceSingleByChannel(result, pos, this->GetActorLocation(), ECollisionChannel::ECC_WorldStatic);
-
-	return (result.Distance >= minLen);
-}
-
-void ACharacterPlayer::AdaptView()
-{
-	if (IsTargetViewable())
-	{
-		CheckDistance(); //Waiting for fix
-		return;
-	}
-	FVector pos = this->cameraComponent->GetComponentLocation();
-	FHitResult result = FHitResult();
-
-	GetWorld()->LineTraceSingleByChannel(result, pos, this->GetActorLocation(), ECollisionChannel::ECC_MAX);
-	AdaptFromCollision(result.ImpactPoint);
-}
-
-void ACharacterPlayer::AdaptFromCollision(FVector collider)
-{
-	if (this->cameraComponent && FVector::Dist(collider, this->GetActorLocation()) >= minLen)
-		this->cameraComponent->SetWorldLocation(collider);
-}
-
-void ACharacterPlayer::CheckDistance()
-{
-	float curdist = FVector::Dist(this->cameraComponent->GetComponentLocation(), this->GetActorLocation());
-	if (curdist < len)
-	{
-		FVector dir = this->cameraComponent->GetComponentLocation() - this->GetActorLocation();
-		
-		if (curdist >= minLen)
-		{
-			float factor = FMath::SmoothStep(0.f, len, curdist);
-			this->cameraComponent->SetWorldLocation(this->GetActorLocation() + (dir.GetSafeNormal() * len * factor));
-		}
-		else
-		{
-			dir = -this->Controller->GetControlRotation().Vector();
-			this->cameraComponent->SetWorldLocation(this->GetActorLocation() + (dir.GetSafeNormal() * minLen));
-		}
-	}
-
-}
 
 UCameraComponent* ACharacterPlayer::FindCamera()
 {
@@ -263,44 +194,42 @@ void ACharacterPlayer::SortEnemyMap()
 	TArray<float> keys = TArray<float>();
 	this->enemy_map.GetKeys(keys);
 
-	for (int i = 0; i < keys.Num(); ++i)
+	for (float key : keys)
 	{
-		float curfactor = this->GetActorPositionFactor(this->enemy_map[keys[i]]);
-		raw.Add(curfactor,this->enemy_map[keys[i]]);
+		float curfactor = this->GetActorPositionFactor(enemy_map[key]);
+		raw.Add(curfactor, enemy_map[key]);
 		factors.Add(curfactor);
 	}
 
 	factors.Sort();
 	this->enemy_map.Empty();
 
-	for (int i = 0; i < factors.Num(); ++i)
-	{
-		this->enemy_map.Add(factors[i], raw[factors[i]]);
-	}
+	for (float f : factors)
+		this->enemy_map.Add(f, raw[f]);
 }
 
 float ACharacterPlayer::GetActorPositionFactor(AActor* factorized)
 {
-	FVector pos = factorized->GetActorLocation();
-	float raw = ACharacterPlayer::GetAngleBetween(factorized->GetActorLocation() - this->GetActorLocation(), this->GetActorForwardVector());
+	FVector dir = factorized->GetActorLocation() - this->GetActorLocation();
+	float raw = ACharacterPlayer::GetAngleBetween(dir, this->GetActorForwardVector());
 	float ref = raw * this->GetLRFactor(this, factorized);
 	return ref;
 }
 
 AActor* ACharacterPlayer::FindForwardTarget()
 {
+	
 	TArray<float> keys = TArray<float>();
 	this->enemy_map.GetKeys(keys);
 
-	for (int i = 0; i < keys.Num(); ++i)
+	for (float ikey : keys)
 	{
 		bool isMin = true;
-		for (int j = 0; j < keys.Num(); ++j)
+		for (float jkey : keys)
 		{
-			if (i == j)
+			if (ikey == jkey)
 				continue;
-			
-			if (FMath::Abs(keys[i]) > FMath::Abs(keys[j]))
+			if (FMath::Abs(ikey) > FMath::Abs(jkey))
 			{
 				isMin = false;
 				break;
@@ -308,20 +237,19 @@ AActor* ACharacterPlayer::FindForwardTarget()
 		}
 		if (!isMin)
 			continue;
-
-		return this->enemy_map[keys[i]];
+		else
+			return enemy_map[ikey];
 	}
+
 	return nullptr;
 }
 
 void ACharacterPlayer::SwitchTarget(float value)
 {
-	if (isAttacking)
+	if (isAttacking || !this->lockTarget)
 		return;
 
 	int factor = FMath::Sign(value);
-	if (!this->lockTarget)
-		return;
 
 	TArray<float> keys = TArray<float>();
 	enemy_map.GetKeys(keys);

@@ -34,8 +34,6 @@ private:
 
 	UPROPERTY(EditAnywhere) UCameraComponent* cameraComponent = nullptr;
 	UPROPERTY(EditAnywhere) float sensitivity = 100.f;
-	UPROPERTY(EditAnywhere) float minLen = 200.f;
-	float len = 0.f;
 
 #pragma endregion 
 
@@ -60,13 +58,6 @@ private:
 	// ----- //
 
 #pragma region Camera Control
-
-	bool IsTargetViewable();
-	bool IsTargetInRange();
-
-	void AdaptView();
-	void AdaptFromCollision(FVector collider);
-	void CheckDistance();
 
 	UCameraComponent* FindCamera();
 

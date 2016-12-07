@@ -3,9 +3,11 @@
 #include "GladiatorGame.h"
 #include "UnrealNetwork.h"
 #include "BaseCharacter.h"
+#include "Animation/SkeletalMeshActor.h"
 
 ABaseCharacter::ABaseCharacter()
 {
+	this->InitEquipmentMap();
 	SetLife(5);
 	bReplicates = true;
 }
@@ -16,6 +18,12 @@ ABaseCharacter::ABaseCharacter(int Life)
 }
 ABaseCharacter::~ABaseCharacter()
 {
+}
+
+void ABaseCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	this->InitEquipmentMap();
 }
 
 void ABaseCharacter::GetLifetimeReplicatedProps(TArray < FLifetimeProperty > & OutLifetimeProps) const
@@ -66,12 +74,23 @@ bool ABaseCharacter::ServSetIsAttacking_Validate(bool bNewSomeBool)
 
 void ABaseCharacter::Attack()
 {
+	if (this->weaponRef)
+		if (this->equipment[weaponRef] != nullptr)
+			return;
+
 	this->SetIsAttacking(true);
 }
 
 void ABaseCharacter::ReceiveDamage(int dmg)
 {
-	this->_Life -= dmg;
+	float multiplier = 1.f;
+
+	if (this->shieldRef)
+		if (this->equipment[shieldRef] != nullptr)
+			multiplier = 2.f;
+
+	this->_Life -= dmg * multiplier;
+	this->RandomDrop();
 	if (this->_Life <= 0)
 		this->Death();
 }
@@ -116,5 +135,127 @@ void ABaseCharacter::Death()
 
 void ABaseCharacter::Move()
 {
+
+}
+
+void ABaseCharacter::InitEquipmentMap()
+{
+	FMath::Clamp<float>(dropRate, 0.f, 1.f);
+
+	TArray<UActorComponent*> component_list = TArray<UActorComponent*>();
+	this->GetComponents(component_list);
+
+	for (UActorComponent* component : component_list)
+	{
+		USceneComponent* converted = Cast<USceneComponent>(component);
+		if (!converted)
+			continue;
+		else
+		{
+			if (converted->HasAnySockets() && converted->GetAttachSocketName() != "None")
+				equipment.Add(converted, nullptr);
+			USkeletalMeshComponent* skeletal_mesh_component = Cast<USkeletalMeshComponent>(converted);
+			if (skeletal_mesh_component)
+			{
+				if (skeletal_mesh_component->SkeletalMesh == weaponMeshRef)
+					weaponRef = converted;
+				if (skeletal_mesh_component->SkeletalMesh == shieldMeshRef)
+					shieldRef = converted;
+			}
+		}
+	}
+}
+
+void ABaseCharacter::RandomDrop()
+{
+	float rand = FMath::FRandRange(0.f, 1.f);
+	if (rand > dropRate || equipment.Num() == 0)
+		return;
+	else
+	{
+		TArray<USceneComponent*> keys = TArray<USceneComponent*>(); equipment.GetKeys(keys);
+
+		int dropidx = FMath::RandRange(0, equipment.Num() - 1);
+		if (equipment[keys[dropidx]] == nullptr)
+			equipment[keys[dropidx]] = DropEquipment(keys[dropidx]);
+	}
+}
+
+void ABaseCharacter::TryPickEquipment()
+{
+	TArray<USceneComponent*> keys = TArray<USceneComponent*>(); equipment.GetKeys(keys);
+
+	for (USceneComponent* key : keys)
+		if (equipment[key] != nullptr)
+		{
+			USceneComponent* collider = Cast<USceneComponent>(equipment[key]->GetComponentByClass(UBoxComponent::StaticClass()));
+			if (collider)
+				if (FVector::Dist(collider->GetComponentLocation(), this->GetActorLocation()) <= this->pickRadius)
+					PickEquipment(equipment[key]);
+		}
+}
+
+
+void ABaseCharacter::PickEquipment(AActor* picked)
+{
+	TArray<USceneComponent*> keys = TArray<USceneComponent*>(); equipment.GetKeys(keys);
 	
+	for (USceneComponent* key : keys)
+		if (equipment[key] == picked)
+		{
+			equipment[key] = nullptr;
+			key->SetVisibility(true);
+		}
+
+	picked->Destroy();
+}
+
+AActor* ABaseCharacter::DropEquipment(USceneComponent* toDrop)
+{
+	USkeletalMeshComponent* converted = Cast<USkeletalMeshComponent>(toDrop);
+	if (converted)
+		return PopActorFromComponent(converted);
+
+	return nullptr;
+}
+
+AActor* ABaseCharacter::PopActorFromComponent(USkeletalMeshComponent* base)
+{
+	AActor* pop_actor = GetWorld()->SpawnActor<ASkeletalMeshActor>(this->GetActorLocation() + base->GetComponentLocation(), base->GetComponentRotation());
+
+	UPrimitiveComponent* boxcomp = NewObject<UPrimitiveComponent>(pop_actor->GetRootComponent(), UBoxComponent::StaticClass());
+	USkeletalMeshComponent* meshcomp = Cast<USkeletalMeshComponent>(NewObject<UPrimitiveComponent>(boxcomp, USkeletalMeshComponent::StaticClass()));
+
+	meshcomp->SetSkeletalMesh(base->SkeletalMesh);
+
+	meshcomp->RegisterComponent();
+	meshcomp->Activate();
+
+	boxcomp->RegisterComponent();
+	boxcomp->Activate();
+
+	meshcomp->SnapTo(boxcomp);
+
+	Cast<UBoxComponent>(boxcomp)->SetBoxExtent(base->SkeletalMesh->GetImportedBounds().BoxExtent * .5f);
+	Cast<UBoxComponent>(boxcomp)->SetCollisionProfileName(TEXT("Droppable"));
+	meshcomp->SetCollisionProfileName(TEXT("Droppable"));
+
+	boxcomp->SetSimulatePhysics(true);
+	boxcomp->SetHiddenInGame(false);
+	
+	pop_actor->SetActorLocation(base->GetComponentLocation());
+	boxcomp->SetWorldTransform(base->GetComponentTransform());
+
+	FVector dropdir = this->GetActorUpVector() * 1.5f - this->GetActorForwardVector();
+	FVector dropRot = -GetActorRightVector()* FMath::FRandRange(100.f, 300.f) + GetActorUpVector() * FMath::FRandRange(-300.f, 300.f);
+
+	dropdir = dropdir.RotateAngleAxis(FMath::FRandRange(-10.f, 10.f), this->GetActorUpVector());
+	dropdir = dropdir.RotateAngleAxis(FMath::FRandRange(0.f, 45.f), this->GetActorRightVector());
+
+	boxcomp->SetPhysicsAngularVelocity(dropRot);
+	boxcomp->SetPhysicsLinearVelocity(dropdir * 300.f);
+
+	base->SetVisibility(false);
+
+	return pop_actor;
 }

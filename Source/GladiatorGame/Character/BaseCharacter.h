@@ -19,6 +19,8 @@ public:
 	ABaseCharacter(int Life);
 	virtual ~ABaseCharacter();
 	
+	virtual void BeginPlay();
+
 	virtual void Attack();
 	virtual void ReceiveDamage(int dmg = 1);
 	virtual void Death();
@@ -42,4 +44,24 @@ public:
 		bool ServSetIsAttacking_Validate(bool bNewSomeBool);
 
 	virtual void GetLifetimeReplicatedProps(TArray < FLifetimeProperty > & OutLifetimeProps) const;
+	UPROPERTY(EditAnywhere) float dropRate = .5f;
+	UPROPERTY(EditAnywhere) float pickRadius = 100.f;
+
+	USceneComponent* weaponRef = nullptr;
+	USceneComponent* shieldRef = nullptr;
+
+	UPROPERTY(EditAnywhere) USkeletalMesh* weaponMeshRef = nullptr;
+	UPROPERTY(EditAnywhere) USkeletalMesh* shieldMeshRef = nullptr;
+
+	TMap<USceneComponent*, AActor*> equipment = TMap<USceneComponent*, AActor*>();
+
+	void InitEquipmentMap();
+
+	void RandomDrop();
+	
+	void TryPickEquipment();
+	void PickEquipment(AActor* picked);
+
+	AActor* DropEquipment(USceneComponent* toDrop);
+	AActor* PopActorFromComponent(USkeletalMeshComponent* base);
 };
