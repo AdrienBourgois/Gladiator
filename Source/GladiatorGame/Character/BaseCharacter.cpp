@@ -257,5 +257,8 @@ AActor* ABaseCharacter::PopActorFromComponent(USkeletalMeshComponent* base)
 
 	base->SetVisibility(false);
 
+	pop_actor->SetReplicates(true);
+	pop_actor->SetReplicateMovement(true);
+
 	return pop_actor;
 }

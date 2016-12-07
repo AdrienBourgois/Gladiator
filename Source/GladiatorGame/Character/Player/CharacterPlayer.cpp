@@ -62,6 +62,8 @@ void ACharacterPlayer::SetupPlayerInputComponent(class UInputComponent* InputCom
 	InputComponent->BindAction("Attack", IE_Pressed, this, &ACharacterPlayer::Attack);
 	InputComponent->BindAction("Lock", IE_Pressed, this, &ACharacterPlayer::CallLock);
 	InputComponent->BindAction("Interact", IE_Pressed, this, &ACharacterPlayer::TryPickEquipment);
+
+	InputComponent->BindAction("OpenMenu", IE_Pressed, this, &ACharacterPlayer::DisplayNetworkMenu).bExecuteWhenPaused = true;
 }
 
 void ACharacterPlayer::VerticalAxis(float value)
