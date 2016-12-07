@@ -19,8 +19,6 @@ void ACharacterPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 	FindCamera();
-	for (int i = 0; i < 10; i++)
-		this->RandomDrop();
 }
 
 void ACharacterPlayer::Tick(float DeltaTime)

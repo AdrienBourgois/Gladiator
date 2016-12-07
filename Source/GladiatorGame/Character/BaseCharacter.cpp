@@ -61,8 +61,6 @@ bool ABaseCharacter::HammerHit()
 		FOverlapResult hit = results[i];
 		if (hit.Actor->GetClass()->IsChildOf(ABaseCharacter::StaticClass()))
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, hit.Actor->GetName());
-
 			if (hit.Actor->GetClass() != this->GetClass())
 			{
 				ABaseCharacter* enemy = Cast<ABaseCharacter>(hit.GetActor());
@@ -194,7 +192,7 @@ AActor* ABaseCharacter::PopActorFromComponent(USkeletalMeshComponent* base)
 	meshcomp->SetCollisionProfileName(TEXT("Droppable"));
 
 	boxcomp->SetSimulatePhysics(true);
-	boxcomp->SetHiddenInGame(false);
+	boxcomp->SetHiddenInGame(true);
 	
 	pop_actor->SetActorLocation(base->GetComponentLocation());
 	boxcomp->SetWorldTransform(base->GetComponentTransform());
