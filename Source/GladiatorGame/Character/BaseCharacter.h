@@ -3,6 +3,7 @@
 #pragma once
 
 #include "GameFramework/Character.h"
+#include "HUD/LifeBar.h"
 #include "BaseCharacter.generated.h"
 /**
  * 
@@ -29,6 +30,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Character Attack") virtual bool HammerHit();
 	UFUNCTION(BlueprintCallable, Category = "Character Attack") virtual bool AttackEnd();
 
+	virtual void GetLifetimeReplicatedProps(TArray < FLifetimeProperty > & OutLifetimeProps) const;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated) int _Life = 5;
 	void SetLife(int Life);
 	UFUNCTION(reliable, server, WithValidation)
@@ -43,7 +46,9 @@ public:
 		void ServSetIsAttacking_Implementation(bool bNewSomeBool);
 		bool ServSetIsAttacking_Validate(bool bNewSomeBool);
 
-	virtual void GetLifetimeReplicatedProps(TArray < FLifetimeProperty > & OutLifetimeProps) const;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<ULifeBar> LifeBar;
+
 	UPROPERTY(EditAnywhere) float dropRate = .5f;
 	UPROPERTY(EditAnywhere) float pickRadius = 100.f;
 
