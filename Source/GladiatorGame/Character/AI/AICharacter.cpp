@@ -97,10 +97,7 @@ void AAICharacter::MoveTo(FVector Target)
 	float CurDistance;
 	FVector Direction;
 	Difference.ToDirectionAndLength(Direction, CurDistance);
-
-	//float TargetDistance = CurDistance - Distance;
 	float MoveDistance = FMath::Clamp(CurDistance, -50.0f * GetWorld()->DeltaTimeSeconds, -50.0f * GetWorld()->DeltaTimeSeconds);
-
 	SetActorLocation(GetActorLocation() + Direction * MoveDistance);
 }
 

@@ -1,16 +1,20 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "GladiatorGame.h"
+#include "UnrealNetwork.h"
 #include "BaseCharacter.h"
 #include "Animation/SkeletalMeshActor.h"
 
 ABaseCharacter::ABaseCharacter()
 {
 	this->InitEquipmentMap();
+	SetLife(5);
+	bReplicates = true;
 }
 ABaseCharacter::ABaseCharacter(int Life)
 {
-	_Life = Life;
+	SetLife(Life);
+	bReplicates = true;
 }
 ABaseCharacter::~ABaseCharacter()
 {
@@ -22,13 +26,59 @@ void ABaseCharacter::BeginPlay()
 	this->InitEquipmentMap();
 }
 
+void ABaseCharacter::GetLifetimeReplicatedProps(TArray < FLifetimeProperty > & OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ABaseCharacter, isAttacking);
+	DOREPLIFETIME(ABaseCharacter, _Life);
+}
+
+void ABaseCharacter::SetLife(int Life)
+{
+	_Life = Life;
+	if (Role < ROLE_Authority)
+	{
+		ServSetLife(Life);
+	}
+}
+
+void ABaseCharacter::ServSetLife_Implementation(int Life)
+{
+	SetLife(Life);
+}
+
+bool ABaseCharacter::ServSetLife_Validate(int Life)
+{
+	return true;
+}
+
+void ABaseCharacter::SetIsAttacking(bool bNewSomeBool)
+{
+	isAttacking = bNewSomeBool;
+	if (Role < ROLE_Authority)
+	{
+		ServSetIsAttacking(bNewSomeBool);
+	}
+}
+
+void ABaseCharacter::ServSetIsAttacking_Implementation(bool bNewSomeBool)
+{
+	SetIsAttacking(bNewSomeBool);
+}
+
+bool ABaseCharacter::ServSetIsAttacking_Validate(bool bNewSomeBool)
+{
+	return true;
+}
+
 void ABaseCharacter::Attack()
 {
 	if (this->weaponRef)
 		if (this->equipment[weaponRef] != nullptr)
 			return;
 
-	this->isAttacking = true;
+	this->SetIsAttacking(true);
 }
 
 void ABaseCharacter::ReceiveDamage(int dmg)
@@ -47,42 +97,39 @@ void ABaseCharacter::ReceiveDamage(int dmg)
 
 bool ABaseCharacter::HammerHit()
 {
+	if (Role < ROLE_Authority)
+		return true;
 	TArray<FOverlapResult> results;
 	this->GetWorld()->OverlapMultiByChannel(results,
 		this->GetActorLocation() + this->GetActorForwardVector() * ONE_METER,
 		this->GetActorRotation().Quaternion(),
 		ECollisionChannel::ECC_MAX,
 		FCollisionShape::MakeSphere(ONE_METER*.5f));
-
-	//DrawDebugSphere(GetWorld(), this->GetActorLocation() + this->GetActorForwardVector() * ONE_METER, ONE_METER*.5f, 32, FColor::Blue, false, 2.f);
-
 	for (int i = 0; i < results.Num(); ++i)
 	{
 		FOverlapResult hit = results[i];
 		if (hit.Actor->GetClass()->IsChildOf(ABaseCharacter::StaticClass()))
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, hit.Actor->GetName());
-
-			if (hit.Actor->GetClass() != this->GetClass())
+			if (hit.Actor != this)
 			{
 				ABaseCharacter* enemy = Cast<ABaseCharacter>(hit.GetActor());
-				if (enemy != nullptr)
+				if (enemy != nullptr && enemy != this)
 					enemy->ReceiveDamage();
 			}
 		}
-
 	}
 	return true;
 }
 
 bool ABaseCharacter::AttackEnd()
 {
-	this->isAttacking = false;
+	SetIsAttacking(false);
 	return true;
 }
 
 void ABaseCharacter::Death()
 {
+	SetLife(_Life);
 	this->SetActorEnableCollision(false);
 }
 
@@ -209,6 +256,9 @@ AActor* ABaseCharacter::PopActorFromComponent(USkeletalMeshComponent* base)
 	boxcomp->SetPhysicsLinearVelocity(dropdir * 300.f);
 
 	base->SetVisibility(false);
+
+	pop_actor->SetReplicates(true);
+	pop_actor->SetReplicateMovement(true);
 
 	return pop_actor;
 }
