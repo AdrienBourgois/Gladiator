@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "GladiatorGame.h"
+#include "GladiatorGameController.h"
 #include "CharacterPlayer.h"
 #include "Animation/SkeletalMeshActor.h"
 
@@ -59,6 +60,8 @@ void ACharacterPlayer::SetupPlayerInputComponent(class UInputComponent* InputCom
 	InputComponent->BindAction("Attack", IE_Pressed, this, &ACharacterPlayer::Attack);
 	InputComponent->BindAction("Lock", IE_Pressed, this, &ACharacterPlayer::CallLock);
 	InputComponent->BindAction("Interact", IE_Pressed, this, &ACharacterPlayer::TryPickEquipment);
+
+	InputComponent->BindAction("OpenMenu", IE_Pressed, this, &ACharacterPlayer::DisplayNetworkMenu).bExecuteWhenPaused = true;
 }
 
 void ACharacterPlayer::VerticalAxis(float value)
@@ -291,3 +294,8 @@ int ACharacterPlayer::GetLRFactor(AActor* ref_actor, AActor* tested_actor)
 #pragma endregion 
 
 // --- ----- --- //
+
+void ACharacterPlayer::DisplayNetworkMenu()
+{
+	Cast<AGladiatorGameController>(GetController())->DisplayNetworkMenu();
+}
