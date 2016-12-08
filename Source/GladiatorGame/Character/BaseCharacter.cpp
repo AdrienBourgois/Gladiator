@@ -241,7 +241,7 @@ AActor* ABaseCharacter::PopActorFromComponent(USkeletalMeshComponent* base)
 	meshcomp->SetCollisionProfileName(TEXT("Droppable"));
 
 	boxcomp->SetSimulatePhysics(true);
-	boxcomp->SetHiddenInGame(false);
+	boxcomp->SetHiddenInGame(true);
 	
 	pop_actor->SetActorLocation(base->GetComponentLocation());
 	boxcomp->SetWorldTransform(base->GetComponentTransform());
