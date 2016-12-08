@@ -2,8 +2,8 @@
 
 #include "GladiatorGame.h"
 #include "UnrealNetwork.h"
-#include "BaseCharacter.h"
 #include "Animation/SkeletalMeshActor.h"
+#include "BaseCharacter.h"
 
 ABaseCharacter::ABaseCharacter()
 {
@@ -90,6 +90,12 @@ void ABaseCharacter::ReceiveDamage(int dmg)
 			multiplier = 2.f;
 
 	this->_Life -= dmg * multiplier;
+
+	//_LifeBar->ActionWidget_Implementation(dmg);
+	//ULifeBar* converted = Cast<ULifeBar>(LifeBar);
+	//if (converted)
+	//	converted->ActionWidget_Implementation(dmg);
+
 	this->RandomDrop();
 	if (this->_Life <= 0)
 		this->Death();
