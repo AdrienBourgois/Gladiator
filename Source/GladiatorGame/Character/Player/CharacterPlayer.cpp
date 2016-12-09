@@ -4,6 +4,7 @@
 #include "GladiatorGameController.h"
 #include "CharacterPlayer.h"
 #include "Animation/SkeletalMeshActor.h"
+#include "GladiatorGameState.h"
 
 class AAICharacter : public ABaseCharacter{};
 
@@ -38,6 +39,11 @@ bool ACharacterPlayer::AttackEnd()
 		this->lockTarget = this->FindForwardTarget();
 	}
 	return true;
+}
+
+void ACharacterPlayer::Death()
+{
+	Cast<AGladiatorGameState>(GetWorld()->GetGameState())->PlayerWin();
 }
 
 

@@ -119,7 +119,7 @@ bool AAICharacter::AttackEnd()
 
 	this->isAttacking = false;
 	SetGoToPlayer(false);
-	AIManager->ChoiceGoToPlayer();
+	//AIManager->ChoiceGoToPlayer();
 	return true;
 }
 

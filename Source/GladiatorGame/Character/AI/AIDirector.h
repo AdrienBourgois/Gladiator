@@ -28,6 +28,8 @@ public:
 		TArray<AActor*>	SpawnPointsList;
 	UPROPERTY(EditAnywhere)
 		int NbEnemy = 5;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float	TimeGoToPlayer = 5.0f;
 	UPROPERTY(EditAnywhere)
 		float DistanceSafe = 500.f;
 	UPROPERTY(EditAnywhere)
@@ -38,4 +40,5 @@ private:
 	AActor* CurrentPlayer;
 	TArray<AAICharacter*> AIList;
 
+	FTimerHandle	GotoPlayerTimerHandle;
 };

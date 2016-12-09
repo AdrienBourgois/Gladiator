@@ -44,12 +44,13 @@ void AAIDirector::ChoiceGoToPlayer()
 
 	for (int i = 0; i < AIList.Num(); ++i)
 	{
-		
 		AIList[i]->SetGoToPlayer(false);
 	}
 
 	int idx = FMath::RandRange(0, AIList.Num()-1);
 	AIList[idx]->SetGoToPlayer(true);
+
+	GetWorld()->GetTimerManager().SetTimer(GotoPlayerTimerHandle, this, &AAIDirector::ChoiceGoToPlayer, 1.0f, false, TimeGoToPlayer);
 }
 
 void AAIDirector::DeathAI(AAICharacter* Target)
@@ -57,8 +58,8 @@ void AAIDirector::DeathAI(AAICharacter* Target)
 	AIList.Remove(Target);
 	if (AIList.Num() <= 0)
 	{
-		Cast<AGladiatorGameState>(GetWorld()->GetGameState())->PlayerWin();
+		Cast<AGladiatorGameState>(GetWorld()->GetGameState())->AIWin();
 	}
 
-	ChoiceGoToPlayer();
+	//ChoiceGoToPlayer();
 }

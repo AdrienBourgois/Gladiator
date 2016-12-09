@@ -22,6 +22,7 @@ public:
 	virtual void Tick( float DeltaSeconds ) override;
 
 	bool AttackEnd() override;
+	virtual void Death() override;
 
 private:
 
