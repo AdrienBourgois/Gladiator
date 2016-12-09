@@ -2,6 +2,7 @@
 
 #include "GladiatorGame.h"
 #include "Blueprint/UserWidget.h"
+#include "Gui/EndGameMenu.h"
 #include "GladiatorGameController.h"
 
 
@@ -20,6 +21,17 @@ void AGladiatorGameController::BeginPlay()
 					return;
 				NetworkMenu->AddToViewport();
 				NetworkMenu->SetVisibility(ESlateVisibility::Hidden);
+			}
+		}
+		if (EndGameMenuBP)
+		{
+			if (!EndGameMenu)
+			{
+				EndGameMenu = CreateWidget<UEndGameMenu>(this, EndGameMenuBP);
+				if (!EndGameMenu)
+					return;
+				EndGameMenu->AddToViewport();
+				EndGameMenu->SetVisibility(ESlateVisibility::Hidden);
 			}
 		}
 	}
@@ -46,3 +58,11 @@ void AGladiatorGameController::DisplayNetworkMenu()
 	
 }
 
+
+void AGladiatorGameController::DisplayEndGameMenu(FString Text)
+{
+	EndGameMenu->SetTextWin(Text);
+	UGameplayStatics::SetGamePaused(GetWorld(), true);
+	EndGameMenu->SetVisibility(ESlateVisibility::Visible);
+	bShowMouseCursor = true;
+}
