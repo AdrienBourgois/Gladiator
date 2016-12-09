@@ -12,8 +12,6 @@ UCLASS()
 class GLADIATORGAME_API UNetworkMenu : public UUserWidget
 {
 	GENERATED_BODY()
-	
-	
-	
+
 	
 };

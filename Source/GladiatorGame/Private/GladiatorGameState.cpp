@@ -2,16 +2,17 @@
 
 #include "GladiatorGame.h"
 #include "GladiatorGameState.h"
+#include "GladiatorGameController.h"
+#include "ServiceLocator.h"
 
 
 void AGladiatorGameState::PlayerWin()
 {
-	UE_LOG(LogTemp, Warning, TEXT("PLAYER WIN!!!!!!"));
-	UGameplayStatics::OpenLevel(GetWorld(), "MapBeta");
+	Cast<AGladiatorGameController>(UGameplayStatics::GetPlayerController(GetWorld(), 0))->DisplayEndGameMenu("Player Win");
+	UServiceLocator::GetInstance()->GetSoundService();
 }
 
 void AGladiatorGameState::AIWin()
 {
-	UE_LOG(LogTemp, Warning, TEXT("AI WIN!!!!!!"));
-	UGameplayStatics::OpenLevel(GetWorld(), "MapBeta");
+	Cast<AGladiatorGameController>(UGameplayStatics::GetPlayerController(GetWorld(), 0))->DisplayEndGameMenu("Enemy Win");
 }
