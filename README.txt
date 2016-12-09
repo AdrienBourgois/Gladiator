@@ -12,6 +12,17 @@
 
 	Controls:
 
+	Movement : WASD / Gamepad L-Stick
+	Camera : Mouse / Gamepad R-Stick
+	
+	Attack : L-Mouse Button / B Gamepad Button
+	Lock : R-Mouse Button / Gamepad DPad Up 
+	Switch Target : Mouse Wheel / Gamepad DPad L/R / Gamepad Trigger L/R
+	
+	Interact (Recover Equipment) : E / X Gamepad Button
+
+	Menu : Escape / P / Select Gamepad Button
+
 	// --- ----- --- //
 
 	Project Architecture :
@@ -89,7 +100,8 @@
 	Known Bug & Issues :
 		
 		Lock System:
-			LR strafes lack of accuracy : stacking those errors lead to spiral movement instead of clean circle 
+			LR strafes lack of accuracy : stacking those errors lead to spiral movement instead of clean circle
+			Switch target glitched w/ gamepad inputs due to axis mapping
 
 	// --- ----- --- //
 

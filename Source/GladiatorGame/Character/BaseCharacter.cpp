@@ -113,7 +113,6 @@ bool ABaseCharacter::HammerHit()
 		ECollisionChannel::ECC_MAX,
 		FCollisionShape::MakeSphere(ONE_METER*.5f));
 
-	TArray<ABaseCharacter*> damaged = TArray<ABaseCharacter*>();
 	for (int i = 0; i < results.Num(); ++i)
 	{
 		FOverlapResult hit = results[i];
