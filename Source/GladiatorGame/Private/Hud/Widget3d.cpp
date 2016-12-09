@@ -45,6 +45,14 @@ void UWidget3d::Follow(TSubclassOf<UUserWidget> _type, int init_value, FVector _
 {
     PrimaryComponentTick.bCanEverTick = true;
 
+	//Temporary fix
+	if (init_value <= 0)
+	{
+		widget_component->DestroyComponent();
+		DestroyComponent();
+		return;
+	}
+
     actor_to_follow = GetOwner();
     relative_location_from_actor = _relative_location;
 

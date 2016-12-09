@@ -112,6 +112,8 @@ bool ABaseCharacter::HammerHit()
 		this->GetActorRotation().Quaternion(),
 		ECollisionChannel::ECC_MAX,
 		FCollisionShape::MakeSphere(ONE_METER*.5f));
+
+	TArray<ABaseCharacter*> damaged = TArray<ABaseCharacter*>();
 	for (int i = 0; i < results.Num(); ++i)
 	{
 		FOverlapResult hit = results[i];
