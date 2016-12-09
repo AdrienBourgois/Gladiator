@@ -4,7 +4,11 @@
 
 #include "GameFramework/Character.h"
 #include "HUD/LifeBar.h"
+//DEBUG
+#include "Public/Hud/Widget3d.h"
+
 #include "BaseCharacter.generated.h"
+
 /**
  * 
  */
@@ -48,6 +52,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<ULifeBar> LifeBar;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite) UWidget3d* Widget3DRef;
 
 	UPROPERTY(EditAnywhere) float dropRate = .5f;
 	UPROPERTY(EditAnywhere) float pickRadius = 100.f;
