@@ -69,7 +69,7 @@ public:
 
 	void RandomDrop();
 	
-	void TryPickEquipment();
+	virtual void TryPickEquipment();
 	void PickEquipment(AActor* picked);
 
 	AActor* DropEquipment(USceneComponent* toDrop);

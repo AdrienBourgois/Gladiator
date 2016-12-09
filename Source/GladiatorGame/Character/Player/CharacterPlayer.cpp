@@ -43,7 +43,7 @@ bool ACharacterPlayer::AttackEnd()
 
 void ACharacterPlayer::Death()
 {
-	Cast<AGladiatorGameState>(GetWorld()->GetGameState())->PlayerWin();
+	Cast<AGladiatorGameState>(GetWorld()->GetGameState())->AIWin();
 }
 
 

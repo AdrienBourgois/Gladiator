@@ -92,11 +92,6 @@ void ABaseCharacter::ReceiveDamage(int dmg)
 
 	this->_Life -= dmg * multiplier;
 
-	//_LifeBar->ActionWidget_Implementation(dmg);
-	//ULifeBar* converted = Cast<ULifeBar>(LifeBar);
-	//if (converted)
-	//	converted->ActionWidget_Implementation(dmg);
-
 	this->RandomDrop();
 	if (this->_Life <= 0)
 		this->Death();

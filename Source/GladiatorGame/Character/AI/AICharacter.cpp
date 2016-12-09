@@ -48,7 +48,6 @@ void AAICharacter::Init(AAIDirector* AImgr, AActor* Player, float safeDist, floa
 	BlackBoard = AIController->FindComponentByClass<UBlackboardComponent>();
 	BlackBoard->SetValueAsObject("Player", CurrentPlayer);
 	BlackBoard->SetValueAsBool("GotoPlayer", false);
-	_Life = 3;
 }
 
 void AAICharacter::CalcVectorSafeDistance()
@@ -79,7 +78,6 @@ FVector AAICharacter::CalcVector(FVector MyLocation, FVector target, float SafeD
 	Difference.ToDirectionAndLength(Direction, CurDistance);
 	float TargetDistance = CurDistance - SafeDist;
 
-	//UE_LOG(LogTemp, Warning, TEXT("Direction x = %f // y = %f // z = %f"), Direction.X, Direction.Y, Direction.Z);
 	return MyLocation + Direction * TargetDistance;
 }
 
@@ -112,6 +110,23 @@ void AAICharacter::LookAt()
 	SetActorRotation(SmoothRotation);
 }
 
+void AAICharacter::ReceiveDamage(int dmg)
+{
+	Super::ReceiveDamage(dmg);
+
+	if (equipment[shieldRef] != nullptr)
+	{
+		SetShieldLost(true);
+		BlackBoard->SetValueAsObject("Shield", equipment[shieldRef]);
+	}
+	if (equipment[weaponRef] != nullptr)
+	{
+		SetWeaponLost(true);
+		BlackBoard->SetValueAsObject("Weapon", equipment[weaponRef]);
+	}
+
+}
+
 bool AAICharacter::AttackEnd()
 {
 	if (AIManager == nullptr)
@@ -119,9 +134,19 @@ bool AAICharacter::AttackEnd()
 
 	this->isAttacking = false;
 	SetGoToPlayer(false);
-	//AIManager->ChoiceGoToPlayer();
 	return true;
 }
+
+void AAICharacter::TryPickEquipment()
+{
+	Super::TryPickEquipment();
+
+	if (equipment[shieldRef] == nullptr)
+		SetShieldLost(false);
+	if (equipment[weaponRef] == nullptr)
+		SetWeaponLost(false);
+}
+
 
 void AAICharacter::Death()
 {
