@@ -18,7 +18,6 @@ public :
 	UFUNCTION(BlueprintCallable, Category="C++ Function")
 	FString GetCurrentLifeAsText() const;
 
-
 	void InitWidget_Implementation(int value) override;
 	void ActionWidget_Implementation(int value) override;
 };

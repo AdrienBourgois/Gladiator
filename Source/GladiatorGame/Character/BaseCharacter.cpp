@@ -5,6 +5,7 @@
 #include "Animation/SkeletalMeshActor.h"
 #include "BaseCharacter.h"
 
+
 ABaseCharacter::ABaseCharacter()
 {
 	this->InitEquipmentMap();
