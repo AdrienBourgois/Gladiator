@@ -33,8 +33,8 @@ public:
 	virtual void Death() override;
 
 	void SetGoToPlayer(bool value) const {BlackBoard->SetValueAsBool("GotoPlayer", value);}
-	void SetShieldLost(bool value) const { BlackBoard->SetValueAsBool("ShieldLost", value); }
-	void SetWeaponLost(bool value) const { BlackBoard->SetValueAsBool("WeaponLost", value); }
+	void SetShieldLost(bool value) const {BlackBoard->SetValueAsBool("ShieldLost", value); }
+	void SetWeaponLost(bool value) const {BlackBoard->SetValueAsBool("WeaponLost", value); }
 	FVector GetSafeLocation() const { return FSafeDistanceInBoard; }
 
 	UPROPERTY(EditAnywhere)

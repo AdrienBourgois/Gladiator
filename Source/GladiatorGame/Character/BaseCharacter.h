@@ -63,7 +63,7 @@ public:
 	UPROPERTY(EditAnywhere) USkeletalMesh* weaponMeshRef = nullptr;
 	UPROPERTY(EditAnywhere) USkeletalMesh* shieldMeshRef = nullptr;
 
-	TMap<USceneComponent*, AActor*> equipment = TMap<USceneComponent*, AActor*>();
+	TMap<USceneComponent*, bool> equipment = TMap<USceneComponent*, bool>();
 
 	void InitEquipmentMap();
 
@@ -73,5 +73,4 @@ public:
 	void PickEquipment(AActor* picked);
 
 	AActor* DropEquipment(USceneComponent* toDrop);
-	AActor* PopActorFromComponent(USkeletalMeshComponent* base);
 };
