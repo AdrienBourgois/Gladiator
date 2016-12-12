@@ -113,16 +113,17 @@ void AAICharacter::LookAt()
 void AAICharacter::ReceiveDamage(int dmg)
 {
 	Super::ReceiveDamage(dmg);
+	return;
 
-	if (equipment[shieldRef] != nullptr)
+	if (!equipment[shieldRef])
 	{
 		SetShieldLost(true);
-		BlackBoard->SetValueAsObject("Shield", equipment[shieldRef]);
+		//BlackBoard->SetValueAsObject("Shield", equipment[shieldRef]);
 	}
-	if (equipment[weaponRef] != nullptr)
+	if (!equipment[weaponRef])
 	{
 		SetWeaponLost(true);
-		BlackBoard->SetValueAsObject("Weapon", equipment[weaponRef]);
+		//BlackBoard->SetValueAsObject("Weapon", equipment[weaponRef]);
 	}
 
 }
@@ -141,9 +142,9 @@ void AAICharacter::TryPickEquipment()
 {
 	Super::TryPickEquipment();
 
-	if (equipment[shieldRef] == nullptr)
+	if (equipment[shieldRef])
 		SetShieldLost(false);
-	if (equipment[weaponRef] == nullptr)
+	if (equipment[weaponRef])
 		SetWeaponLost(false);
 }
 
