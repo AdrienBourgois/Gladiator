@@ -28,8 +28,22 @@ void UWidget3d::TickComponent( float DeltaTime, ELevelTick TickType, FActorCompo
 
     if (widget_component)
     {
-        if(actor_to_follow)
-            widget_component->SetWorldLocation(actor_to_follow->GetActorLocation() + relative_location_from_actor);
+        if (actor_to_follow)
+        {
+            FVector compute_location = actor_to_follow->GetActorLocation() + relative_location_from_actor;
+            if(fly_animation)
+            {
+                current_fly_location += FVector(0.f, 0.f, 25.f * DeltaTime);
+                if (current_fly_location.Z > max_z_fly)
+                {
+                    fly_animation = false;
+                    Destruct();
+                    return;
+                }
+                compute_location += current_fly_location;
+            }
+            widget_component->SetWorldLocation(compute_location);
+        }
 
         if (camera_manager)
         {
@@ -41,17 +55,19 @@ void UWidget3d::TickComponent( float DeltaTime, ELevelTick TickType, FActorCompo
     }
 }
 
-void UWidget3d::Follow(TSubclassOf<UUserWidget> _type, int init_value, FVector _relative_location)
+void UWidget3d::Follow(TSubclassOf<UUserWidget> _type, int init_value, FVector _relative_location, bool _fly_animation)
 {
     PrimaryComponentTick.bCanEverTick = true;
 
-	//Temporary fix
-	if (init_value <= 0)
-	{
-		widget_component->DestroyComponent();
-		DestroyComponent();
-		return;
-	}
+    fly_animation = _fly_animation;
+
+    //Temporary fix
+    /*if (init_value <= 0)
+    {
+        widget_component->DestroyComponent();
+        DestroyComponent();
+        return;
+    }*/
 
     actor_to_follow = GetOwner();
     relative_location_from_actor = _relative_location;
@@ -67,4 +83,19 @@ void UWidget3d::Follow(TSubclassOf<UUserWidget> _type, int init_value, FVector _
     IWidgetInterface::Execute_InitWidget(widget_component->GetUserWidgetObject(), init_value);
 
     camera_manager = GetWorld()->GetFirstPlayerController()->PlayerCameraManager;
+}
+
+void UWidget3d::Action(int value) const
+{
+       IWidgetInterface::Execute_ActionWidget(widget_component->GetUserWidgetObject(), value);
+}
+
+void UWidget3d::Destruct()
+{
+    PrimaryComponentTick.bCanEverTick = false;
+    widget_component->DestroyComponent();
+    widget_component = nullptr;
+    widget_instance->Destruct();
+    widget_instance = nullptr;
+    DestroyComponent();
 }
