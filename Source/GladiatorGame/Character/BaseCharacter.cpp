@@ -79,6 +79,49 @@ bool ABaseCharacter::ServSetIsAttacking_Validate(bool bNewSomeBool)
 	return true;
 }
 
+void ABaseCharacter::SetHammerVisible(bool bNewSomeBool)
+{
+	bool Send = false;
+	if (HammerVisible != bNewSomeBool)
+		Send = true;
+	equipment[weaponRef] = bNewSomeBool;
+	HammerVisible = bNewSomeBool;
+	weaponRef->SetVisibility(bNewSomeBool);
+	if (Send == true)
+		ServSetHammerVisible(bNewSomeBool);
+}
+
+void ABaseCharacter::ServSetHammerVisible_Implementation(bool bNewSomeBool)
+{
+	SetHammerVisible(bNewSomeBool);
+}
+
+bool ABaseCharacter::ServSetHammerVisible_Validate(bool bNewSomeBool)
+{
+	return true;
+}
+
+void ABaseCharacter::SetShieldVisible(bool bNewSomeBool)
+{
+	bool Send = false;
+	if (ShieldVisible != bNewSomeBool)
+		Send = true;
+	equipment[shieldRef] = bNewSomeBool;
+	ShieldVisible = bNewSomeBool;
+	shieldRef->SetVisibility(bNewSomeBool);
+	if (Send == true)
+		ServSetShieldVisible(bNewSomeBool);
+}
+
+void ABaseCharacter::ServSetShieldVisible_Implementation(bool bNewSomeBool)
+{
+	SetShieldVisible(bNewSomeBool);
+}
+
+bool ABaseCharacter::ServSetShieldVisible_Validate(bool bNewSomeBool)
+{
+	return true;
+}
 #pragma endregion
 
 	// --- ----- --- //
@@ -232,7 +275,10 @@ void ABaseCharacter::TryPickEquipment()
 				if (keycast)
 					if (drop->IsSameAs(Cast<USkeletalMeshComponent>(key)))
 					{
-						equipment[key] = true;
+						if (key == weaponRef)
+							SetHammerVisible(true);
+						else if (key == shieldRef)
+							SetShieldVisible(true);
 						key->SetVisibility(true);
 						found.Add(hit.GetActor());
 						break;
@@ -254,7 +300,7 @@ AActor* ABaseCharacter::DropEquipment(USceneComponent* toDrop)
 	USkeletalMeshComponent* converted = Cast<USkeletalMeshComponent>(toDrop);
 	if (converted)
 	{
-		ADroppable* drop = Cast<ADroppable>(GetWorld()->SpawnActor<ADroppable>(converted->GetComponentLocation(), converted->GetComponentRotation()));
+		ADroppable* drop = Cast<ADroppable>(GetWorld()->SpawnActor<ADroppable>(DroppableBP, converted->GetComponentLocation(), converted->GetComponentRotation()));
 		drop->Init(converted);
 
 		FVector force = this->GetActorUpVector() * 1.5f - this->GetActorForwardVector();
@@ -264,8 +310,11 @@ AActor* ABaseCharacter::DropEquipment(USceneComponent* toDrop)
 		force = force.RotateAngleAxis(FMath::FRandRange(0.f, 45.f), this->GetActorRightVector());
 
 		drop->ApplyForces(force * ONE_METER * 3.f, torque);
-
-		equipment[toDrop] = false;
+		
+		if (toDrop == weaponRef)
+			SetHammerVisible(false);
+		else if (toDrop == shieldRef)
+			SetShieldVisible(false);
 		return Cast<AActor>(drop);
 	}
 	return nullptr;

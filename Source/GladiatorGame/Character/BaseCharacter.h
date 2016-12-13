@@ -50,12 +50,29 @@ public:
 		void ServSetIsAttacking_Implementation(bool bNewSomeBool);
 		bool ServSetIsAttacking_Validate(bool bNewSomeBool);
 
+	UPROPERTY(Replicated) bool HammerVisible = true;
+	void SetHammerVisible(bool bNewSomeBool);
+	UFUNCTION(reliable, NetMulticast, WithValidation)
+		void ServSetHammerVisible(bool bNewSomeBool);
+		void ServSetHammerVisible_Implementation(bool bNewSomeBool);
+		bool ServSetHammerVisible_Validate(bool bNewSomeBool);
+
+	UPROPERTY(Replicated) bool ShieldVisible = true;
+	void SetShieldVisible(bool bNewSomeBool);
+	UFUNCTION(reliable, NetMulticast, WithValidation)
+		void ServSetShieldVisible(bool bNewSomeBool);
+		void ServSetShieldVisible_Implementation(bool bNewSomeBool);
+		bool ServSetShieldVisible_Validate(bool bNewSomeBool);
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<ULifeBar> LifeBar;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) UWidget3d* Widget3DRef;
 
 	UPROPERTY(EditAnywhere) float dropRate = .5f;
 	UPROPERTY(EditAnywhere) float pickRadius = 100.f;
+
+	UPROPERTY(EditAnywhere)
+	UClass* DroppableBP;
 
 	USceneComponent* weaponRef = nullptr;
 	USceneComponent* shieldRef = nullptr;

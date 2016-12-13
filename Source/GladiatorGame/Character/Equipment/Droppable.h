@@ -23,6 +23,13 @@ public:
 	FVector GetPhysicalizedPosition();
 	UPrimitiveComponent* GetHitbox();
 
+	/*virtual void PostInitializeComponents() override;
+	virtual class FObjectReplicatorBase * InstantiateReplicatorForSubObject(UClass *SubobjClass);
+
+	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const;
+	UPROPERTY(Replicated)
+		ADroppable* Subobject;*/
+
 private:
 
 	UPrimitiveComponent* hitbox = nullptr;
