@@ -28,7 +28,7 @@ public:
 
 	virtual void Attack();
 	virtual void ReceiveDamage(int dmg = 1);
-	virtual void Death();
+	UFUNCTION(BlueprintCallable, Category = "Character Management") virtual void Death();
 	virtual void Move();
 
 	UFUNCTION(BlueprintCallable, Category = "Character Attack") virtual bool HammerHit();

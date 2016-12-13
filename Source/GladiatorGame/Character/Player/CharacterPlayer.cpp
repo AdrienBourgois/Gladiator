@@ -257,6 +257,8 @@ void ACharacterPlayer::SwitchTarget(float value)
 
 	int factor = FMath::Sign(value);
 
+	SortEnemyMap();
+
 	TArray<float> keys = TArray<float>();
 	enemy_map.GetKeys(keys);
 	float curkey = *enemy_map.FindKey(this->lockTarget);
