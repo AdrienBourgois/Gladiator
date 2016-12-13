@@ -16,7 +16,7 @@ class GLADIATORGAME_API AGladiatorGameController : public APlayerController
 	GENERATED_BODY()
 
 public:
-	void BeginPlay();
+	virtual void BeginPlay();
 	void DisplayNetworkMenu();
 	void DisplayEndGameMenu(FString Text);
 
