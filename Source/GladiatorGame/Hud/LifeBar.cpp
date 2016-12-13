@@ -23,7 +23,6 @@ void ULifeBar::InitWidget_Implementation(float value)
 
 void ULifeBar::ActionWidget_Implementation(float value)
 {
-    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("HIT"));
     current_life = value;
 }
 
