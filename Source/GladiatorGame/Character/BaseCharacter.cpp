@@ -235,7 +235,6 @@ void ABaseCharacter::TryPickEquipment()
 						equipment[key] = true;
 						key->SetVisibility(true);
 						found.Add(hit.GetActor());
-						GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("WorkingCast"));
 						break;
 					}
 			}
