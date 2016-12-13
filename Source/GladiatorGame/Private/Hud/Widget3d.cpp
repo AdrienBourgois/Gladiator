@@ -55,19 +55,19 @@ void UWidget3d::TickComponent( float DeltaTime, ELevelTick TickType, FActorCompo
     }
 }
 
-void UWidget3d::Follow(TSubclassOf<UUserWidget> _type, int init_value, FVector _relative_location, bool _fly_animation)
+void UWidget3d::Follow(TSubclassOf<UUserWidget> _type, float init_value, bool _fly_animation, FVector _relative_location)
 {
     PrimaryComponentTick.bCanEverTick = true;
 
     fly_animation = _fly_animation;
 
     //Temporary fix
-    /*if (init_value <= 0)
+    if (init_value <= 0)
     {
         widget_component->DestroyComponent();
         DestroyComponent();
         return;
-    }*/
+    }
 
     actor_to_follow = GetOwner();
     relative_location_from_actor = _relative_location;
@@ -75,17 +75,20 @@ void UWidget3d::Follow(TSubclassOf<UUserWidget> _type, int init_value, FVector _
     widget_component = NewObject<UWidgetComponent>(this, TEXT("WidgetComponentInstance"));
     widget_component->SetWidgetClass(_type);
     widget_component->SetWorldLocation(actor_to_follow->GetActorLocation() + relative_location_from_actor);
-    widget_component->SetDrawSize(FVector2D(200, 50));
     widget_component->SetVisibility(true);
     widget_component->RegisterComponent();
     widget_instance = widget_component->GetUserWidgetObject();
 
     IWidgetInterface::Execute_InitWidget(widget_component->GetUserWidgetObject(), init_value);
 
+    float size_x = IWidgetInterface::Execute_GetSizeX(widget_component->GetUserWidgetObject());
+    float size_y = IWidgetInterface::Execute_GetSizeY(widget_component->GetUserWidgetObject());
+    widget_component->SetDrawSize(FVector2D(size_x, size_y));
+
     camera_manager = GetWorld()->GetFirstPlayerController()->PlayerCameraManager;
 }
 
-void UWidget3d::Action(int value) const
+void UWidget3d::Action(float value) const
 {
        IWidgetInterface::Execute_ActionWidget(widget_component->GetUserWidgetObject(), value);
 }

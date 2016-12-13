@@ -10,16 +10,29 @@ float ULifeBar::GetPercent() const
 
 FString ULifeBar::GetCurrentLifeAsText() const
 {
+    //if(max_life > 0)
+        //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::SanitizeFloat(current_life));
     return FString::SanitizeFloat(current_life);
 }
 
-void ULifeBar::InitWidget_Implementation(int value)
+void ULifeBar::InitWidget_Implementation(float value)
 {
     max_life = value;
     current_life = value;
 }
 
-void ULifeBar::ActionWidget_Implementation(int value)
+void ULifeBar::ActionWidget_Implementation(float value)
 {
-    current_life -= value;
+    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("HIT"));
+    current_life = value;
+}
+
+float ULifeBar::GetSizeX_Implementation() const
+{
+    return size_x;
+}
+
+float ULifeBar::GetSizeY_Implementation() const
+{
+    return size_y;
 }
