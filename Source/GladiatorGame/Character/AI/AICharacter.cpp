@@ -113,7 +113,9 @@ void AAICharacter::LookAt()
 void AAICharacter::ReceiveDamage(int dmg)
 {
 	Super::ReceiveDamage(dmg);
+	
 	return;
+
 
 	if (!equipment[shieldRef])
 	{
