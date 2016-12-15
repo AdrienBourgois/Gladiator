@@ -7,6 +7,15 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "AICharacter.generated.h"
 
+UENUM(BlueprintType)
+enum class StateAI : uint8
+{
+	Idle		UMETA(DisplayName = "Idle"),
+	GoToPlayer	UMETA(DisplayName = "GoToPlayer"),
+	GoSafe		UMETA(DisplayName = "GoSafe"),
+	WeaponLost	UMETA(DisplayName = "WeaponLost"),
+	ShieldLost	UMETA(DisplayName = "ShieldLost")
+};
 
 class AAIDirector;
 UCLASS()
@@ -21,24 +30,27 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 
 	void Init(AAIDirector* AImgr, AActor* Player, float safeDist, float distIA);
+
 	void CalcVectorSafeDistance();
 	FVector CalcVector(FVector MyLocation, FVector target, float SafeDist);
 	float DistanceToTarget(FVector Pos, FVector target);
-
 	void MoveTo(FVector Target);
 	void LookAt();
+	void CheckStuff();
 	virtual void ReceiveDamage(int dmg = 1) override;
 	virtual bool AttackEnd() override;
-	virtual void TryPickEquipment();
+	virtual void TryPickEquipment() override;
 	virtual void Death() override;
 
-	void SetGoToPlayer(bool value) const {BlackBoard->SetValueAsBool("GotoPlayer", value);}
-	void SetShieldLost(bool value) const {BlackBoard->SetValueAsBool("ShieldLost", value); }
-	void SetWeaponLost(bool value) const {BlackBoard->SetValueAsBool("WeaponLost", value); }
+	StateAI GetState() { return State; }
+	void SetState(StateAI value) { State = value;  BlackBoard->SetValueAsEnum("State", uint8(State)); }
 	FVector GetSafeLocation() const { return FSafeDistanceInBoard; }
 
 	UPROPERTY(EditAnywhere)
 		float RotateSpeed = 20.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Enum)
+		StateAI State;
 
 private:
 	AActor* CurrentPlayer;
@@ -48,4 +60,5 @@ private:
 	UBlackboardComponent* BlackBoard;
 
 	AAIDirector* AIManager;
+
 };

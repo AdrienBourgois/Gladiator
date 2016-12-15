@@ -7,31 +7,25 @@
 #include "BehaviorTree/BehaviorTreeComponent.h"
 
 
-// Sets default values
 AAICharacter::AAICharacter()
 {
-	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	CurrentPlayer = nullptr;
 	AIManager = nullptr;
 	BlackBoard = nullptr;
-	
 }
 
-// Called when the game starts or when spawned
 void AAICharacter::BeginPlay()
 {
 	Super::BeginPlay();
 }
 
-// Called every frame
 void AAICharacter::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
-	LookAt();
+	//LookAt();
 }
 
-// Called to bind functionality to input
 void AAICharacter::SetupPlayerInputComponent(class UInputComponent* InputComponent)
 {
 	Super::SetupPlayerInputComponent(InputComponent);
@@ -46,8 +40,10 @@ void AAICharacter::Init(AAIDirector* AImgr, AActor* Player, float safeDist, floa
 	CurrentPlayer = Player;
 	AAIControl*	AIController = Cast<AAIControl>(GetController());
 	BlackBoard = AIController->FindComponentByClass<UBlackboardComponent>();
+	SetState(StateAI::GoSafe);
 	BlackBoard->SetValueAsObject("Player", CurrentPlayer);
-	BlackBoard->SetValueAsBool("GotoPlayer", false);
+	BlackBoard->SetValueAsObject("Weapon", nullptr);
+	BlackBoard->SetValueAsObject("Weapon", nullptr);
 }
 
 void AAICharacter::CalcVectorSafeDistance()
@@ -114,20 +110,28 @@ void AAICharacter::ReceiveDamage(int dmg)
 {
 	Super::ReceiveDamage(dmg);
 	
-	return;
+	CheckStuff();
+}
 
-
+void AAICharacter::CheckStuff()
+{
 	if (!equipment[shieldRef])
 	{
-		SetShieldLost(true);
-		//BlackBoard->SetValueAsObject("Shield", equipment[shieldRef]);
+		UE_LOG(LogTemp, Warning, TEXT("Shield False"));
+		SetState(StateAI::ShieldLost);
+		BlackBoard->SetValueAsObject("Shield", AIManager->GoToWeapon(shieldRef));
 	}
-	if (!equipment[weaponRef])
+	else if (!equipment[weaponRef])
 	{
-		SetWeaponLost(true);
-		//BlackBoard->SetValueAsObject("Weapon", equipment[weaponRef]);
+		UE_LOG(LogTemp, Warning, TEXT("weapon False"));
+		SetState(StateAI::WeaponLost);
+		BlackBoard->SetValueAsObject("Weapon", AIManager->GoToWeapon(weaponRef));
 	}
-
+	else if (equipment[shieldRef] && equipment[weaponRef])
+	{
+		UE_LOG(LogTemp, Warning, TEXT("stuff TRUE"));
+		SetState(StateAI::GoSafe);
+	}
 }
 
 bool AAICharacter::AttackEnd()
@@ -136,20 +140,16 @@ bool AAICharacter::AttackEnd()
 		return false;
 
 	this->isAttacking = false;
-	SetGoToPlayer(false);
+	if (State == StateAI::GoToPlayer)
+		SetState(StateAI::GoSafe);
 	return true;
 }
 
 void AAICharacter::TryPickEquipment()
 {
 	Super::TryPickEquipment();
-
-	if (equipment[shieldRef])
-		SetShieldLost(false);
-	if (equipment[weaponRef])
-		SetWeaponLost(false);
+	CheckStuff();
 }
-
 
 void AAICharacter::Death()
 {

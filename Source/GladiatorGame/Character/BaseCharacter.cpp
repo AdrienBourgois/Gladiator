@@ -4,6 +4,7 @@
 #include "UnrealNetwork.h"
 #include "Animation/SkeletalMeshActor.h"
 #include "Character/Equipment/Droppable.h"
+#include "AI/AIDirector.h"
 #include "BaseCharacter.h"
 #include "Kismet/KismetStringLibrary.h"
 
@@ -275,6 +276,7 @@ void ABaseCharacter::TryPickEquipment()
 				if (keycast)
 					if (drop->IsSameAs(Cast<USkeletalMeshComponent>(key)))
 					{
+						AAIDirector::GetAIDirector()->GetEquipmentList().Remove(drop);
 						if (key == weaponRef)
 							SetHammerVisible(true);
 						else if (key == shieldRef)
@@ -286,8 +288,8 @@ void ABaseCharacter::TryPickEquipment()
 			}
 		}
 	}
-		for (AActor* cur : found)
-			cur->Destroy();
+	for (AActor* cur : found)
+		cur->Destroy();
 }
 
 void ABaseCharacter::PickEquipment(AActor* picked)
@@ -300,7 +302,7 @@ AActor* ABaseCharacter::DropEquipment(USceneComponent* toDrop)
 	USkeletalMeshComponent* converted = Cast<USkeletalMeshComponent>(toDrop);
 	if (converted)
 	{
-		ADroppable* drop = Cast<ADroppable>(GetWorld()->SpawnActor<ADroppable>(DroppableBP, converted->GetComponentLocation(), converted->GetComponentRotation()));
+		ADroppable* drop = Cast<ADroppable>(GetWorld()->SpawnActor<ADroppable>(converted->GetComponentLocation(), converted->GetComponentRotation()));
 		drop->Init(converted);
 
 		FVector force = this->GetActorUpVector() * 1.5f - this->GetActorForwardVector();
@@ -315,6 +317,8 @@ AActor* ABaseCharacter::DropEquipment(USceneComponent* toDrop)
 			SetHammerVisible(false);
 		else if (toDrop == shieldRef)
 			SetShieldVisible(false);
+		if (AAIDirector::GetAIDirector() != nullptr)
+			AAIDirector::GetAIDirector()->GetEquipmentList().Add(drop);
 		return Cast<AActor>(drop);
 	}
 	return nullptr;

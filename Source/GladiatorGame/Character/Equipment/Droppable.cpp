@@ -5,7 +5,6 @@
 // Sets default values
 ADroppable::ADroppable()
 {
-	UE_LOG(LogTemp, Warning, TEXT("ADroppable::ADroppable()"));
 	PrimaryActorTick.bCanEverTick = true;
 
 	this->hitbox = Cast<UPrimitiveComponent>(CreateDefaultSubobject<UBoxComponent>(TEXT("hitbox")));
@@ -69,8 +68,3 @@ UPrimitiveComponent* ADroppable::GetHitbox()
 {
 	return this->hitbox;
 }
-
-//void ADroppable::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
-//{
-//	DOREPLIFETIME(ADroppable, Subobject);
-//}

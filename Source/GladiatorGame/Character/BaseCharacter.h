@@ -6,7 +6,6 @@
 #include "HUD/LifeBar.h"
 //DEBUG
 #include "Public/Hud/Widget3d.h"
-
 #include "BaseCharacter.generated.h"
 
 /**
@@ -14,6 +13,7 @@
  */
 
 const float ONE_METER = 100.f;
+class AAIDirector;
 
 UCLASS(Blueprintable)
 class GLADIATORGAME_API ABaseCharacter : public ACharacter
@@ -90,4 +90,6 @@ public:
 	void PickEquipment(AActor* picked);
 
 	AActor* DropEquipment(USceneComponent* toDrop);
+
+	AAIDirector* AImgr;
 };
