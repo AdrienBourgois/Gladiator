@@ -24,8 +24,8 @@ public:
 		void FindOnlineGames(bool IsLan, FString Adress);
 	UFUNCTION(BlueprintCallable, Category = "Network")
 		void JoinOnlineGame();
-	UFUNCTION(BlueprintCallable, Category = "Network")
-		void DestroySessionAndLeaveGame();
+	/*UFUNCTION(BlueprintCallable, Category = "Network")
+		void DestroySessionAndLeaveGame();*/
 
 #pragma region HostGame
 

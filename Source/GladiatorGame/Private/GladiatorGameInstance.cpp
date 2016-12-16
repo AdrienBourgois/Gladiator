@@ -16,7 +16,7 @@ UGladiatorGameInstance::UGladiatorGameInstance(const FObjectInitializer& ObjectI
 }
 UGladiatorGameInstance::~UGladiatorGameInstance()
 {
-	DestroySessionAndLeaveGame();
+	//DestroySessionAndLeaveGame();
 }
 
 #pragma region BPFunc
@@ -52,7 +52,7 @@ void UGladiatorGameInstance::JoinOnlineGame()
 	}
 }
 
-void UGladiatorGameInstance::DestroySessionAndLeaveGame()
+/*void UGladiatorGameInstance::DestroySessionAndLeaveGame()
 {
 	IOnlineSubsystem* OnlineSub = IOnlineSubsystem::Get();
 	if (OnlineSub)
@@ -64,7 +64,7 @@ void UGladiatorGameInstance::DestroySessionAndLeaveGame()
 			Sessions->DestroySession(GameSessionName);
 		}
 	}
-}
+}*/
 #pragma endregion 
 
 //Function to host a game
