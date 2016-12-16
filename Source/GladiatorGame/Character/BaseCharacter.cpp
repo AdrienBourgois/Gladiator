@@ -204,7 +204,7 @@ void ABaseCharacter::CreatWidgetDamage(float value)
 {
 	if (Role < ROLE_Authority)
 		return;
-	UWidget3d* damage_text_instance = NewObject<UWidget3d>(this, TEXT("DamageText"));
+	UWidget3d* damage_text_instance = NewObject<UWidget3d>(this);
 	damage_text_instance->RegisterComponent();
 	damage_text_instance->Follow(damage_text_class, value, true, FVector(0.f, 0.f, 30.f));
 }

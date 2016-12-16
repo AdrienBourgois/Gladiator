@@ -125,7 +125,7 @@ void UGladiatorGameInstance::OnStartOnlineGameComplete(FName SessionName, bool b
 			Sessions->ClearOnStartSessionCompleteDelegate_Handle(OnStartSessionCompleteDelegateHandle);
 	}
 	if (bWasSuccessful)
-		UGameplayStatics::OpenLevel(GetWorld(), "NetworkTest", true, "listen");
+		UGameplayStatics::OpenLevel(GetWorld(), "ArenaNetwork", true, "listen");
 }
 #pragma endregion 
 
