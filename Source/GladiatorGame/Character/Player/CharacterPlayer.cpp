@@ -43,7 +43,7 @@ bool ACharacterPlayer::AttackEnd()
 
 void ACharacterPlayer::Death()
 {
-	Cast<AGladiatorGameState>(GetWorld()->GetGameState())->PlayerWin();
+	Cast<AGladiatorGameState>(GetWorld()->GetGameState())->AIWin();
 }
 
 
@@ -256,6 +256,8 @@ void ACharacterPlayer::SwitchTarget(float value)
 		return;
 
 	int factor = FMath::Sign(value);
+
+	SortEnemyMap();
 
 	TArray<float> keys = TArray<float>();
 	enemy_map.GetKeys(keys);

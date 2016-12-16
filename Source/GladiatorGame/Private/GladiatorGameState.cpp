@@ -9,7 +9,6 @@
 void AGladiatorGameState::PlayerWin()
 {
 	Cast<AGladiatorGameController>(UGameplayStatics::GetPlayerController(GetWorld(), 0))->DisplayEndGameMenu("Player Win");
-	UServiceLocator::GetInstance()->GetSoundService();
 }
 
 void AGladiatorGameState::AIWin()

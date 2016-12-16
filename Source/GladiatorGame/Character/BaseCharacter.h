@@ -7,7 +7,6 @@
 #include "Hud/DamageText.h"
 //DEBUG
 #include "Public/Hud/Widget3d.h"
-
 #include "BaseCharacter.generated.h"
 
 /**
@@ -15,6 +14,7 @@
  */
 
 const float ONE_METER = 100.f;
+class AAIDirector;
 
 UCLASS(Blueprintable)
 class GLADIATORGAME_API ABaseCharacter : public ACharacter
@@ -29,7 +29,7 @@ public:
 
     virtual void Attack();
     virtual void ReceiveDamage(int dmg = 1);
-    virtual void Death();
+	UFUNCTION(BlueprintCallable, Category = "Character Management") virtual void Death();
     virtual void Move();
 
     UFUNCTION(BlueprintCallable, Category = "Character Attack") virtual bool HammerHit();
@@ -51,6 +51,20 @@ public:
         void ServSetIsAttacking_Implementation(bool bNewSomeBool);
         bool ServSetIsAttacking_Validate(bool bNewSomeBool);
 
+	UPROPERTY(Replicated) bool HammerVisible = true;
+	void SetHammerVisible(bool bNewSomeBool);
+	UFUNCTION(reliable, NetMulticast, WithValidation)
+		void ServSetHammerVisible(bool bNewSomeBool);
+		void ServSetHammerVisible_Implementation(bool bNewSomeBool);
+		bool ServSetHammerVisible_Validate(bool bNewSomeBool);
+
+	UPROPERTY(Replicated) bool ShieldVisible = true;
+	void SetShieldVisible(bool bNewSomeBool);
+	UFUNCTION(reliable, NetMulticast, WithValidation)
+		void ServSetShieldVisible(bool bNewSomeBool);
+		void ServSetShieldVisible_Implementation(bool bNewSomeBool);
+		bool ServSetShieldVisible_Validate(bool bNewSomeBool);
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     UWidget3d* lifeBarHandler = nullptr;
     TSubclassOf<UUserWidget> life_bar_class;
@@ -59,21 +73,25 @@ public:
     UPROPERTY(EditAnywhere) float dropRate = .5f;
     UPROPERTY(EditAnywhere) float pickRadius = 100.f;
 
+	UPROPERTY(EditAnywhere)
+	UClass* DroppableBP;
+
     USceneComponent* weaponRef = nullptr;
     USceneComponent* shieldRef = nullptr;
 
     UPROPERTY(EditAnywhere) USkeletalMesh* weaponMeshRef = nullptr;
     UPROPERTY(EditAnywhere) USkeletalMesh* shieldMeshRef = nullptr;
 
-    TMap<USceneComponent*, AActor*> equipment = TMap<USceneComponent*, AActor*>();
+	TMap<USceneComponent*, bool> equipment = TMap<USceneComponent*, bool>();
 
     void InitEquipmentMap();
 
     void RandomDrop();
     
-    void TryPickEquipment();
+	virtual void TryPickEquipment();
     void PickEquipment(AActor* picked);
 
     AActor* DropEquipment(USceneComponent* toDrop);
-    AActor* PopActorFromComponent(USkeletalMeshComponent* base);
+
+	AAIDirector* AImgr;
 };
