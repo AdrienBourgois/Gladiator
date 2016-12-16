@@ -36,6 +36,7 @@ void ABaseCharacter::BeginPlay()
     lifeBarHandler = NewObject<UWidget3d>(this, TEXT("LifeBar"));
     lifeBarHandler->RegisterComponent();
     lifeBarHandler->Follow(life_bar_class, _Life);
+	
 }
 
     // --- ----- --- //
@@ -47,13 +48,19 @@ void ABaseCharacter::GetLifetimeReplicatedProps(TArray < FLifetimeProperty > & O
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
     DOREPLIFETIME(ABaseCharacter, isAttacking);
-    DOREPLIFETIME(ABaseCharacter, _Life);
+   // DOREPLIFETIME(ABaseCharacter, _Life);
 }
 
 void ABaseCharacter::SetLife(int Life)
 {
+	SetLifeBarHandler(Life);
+
+	bool Send = false;
+	if (_Life != Life)
+		Send = true;
     _Life = Life;
-    if (Role < ROLE_Authority)
+
+    if (Send == true)
     {
         ServSetLife(Life);
     }
@@ -68,6 +75,7 @@ bool ABaseCharacter::ServSetLife_Validate(int Life)
 {
     return true;
 }
+
 
 void ABaseCharacter::SetIsAttacking(bool bNewSomeBool)
 {
@@ -166,18 +174,15 @@ void ABaseCharacter::ReceiveDamage(int dmg)
         if (!this->equipment[shieldRef])
             multiplier = 2.f;
 
-    this->_Life -= dmg * multiplier;
+	int lifeTemp = _Life - dmg * multiplier;
+	SetLife(lifeTemp);
+
+	if (lifeBarHandler)
+		lifeBarHandler->Action(_Life);
 
     if (_Life > 0)
-    {
-        if (lifeBarHandler)
-            lifeBarHandler->Action(_Life);
-        else
-            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Life Bar not initialized !"));
-
-        UWidget3d* damage_text_instance = NewObject<UWidget3d>(this, TEXT("DamageText"));
-        damage_text_instance->RegisterComponent();
-        damage_text_instance->Follow(damage_text_class, 1.f, true, FVector(0.f, 0.f, 30.f));
+    {  
+		CreatWidgetDamage(1.0f);
     }
     else
     {
@@ -186,14 +191,22 @@ void ABaseCharacter::ReceiveDamage(int dmg)
             lifeBarHandler->Destruct();
             lifeBarHandler = nullptr;
         }
-        UWidget3d* damage_text_instance = NewObject<UWidget3d>(this, TEXT("DamageText"));
-        damage_text_instance->RegisterComponent();
-        damage_text_instance->Follow(damage_text_class, 2.f, true, FVector(0.f, 0.f, 30.f));
+		CreatWidgetDamage(2.0f);
+        
     }
 
     this->RandomDrop();
     if (this->_Life <= 0)
         this->Death();
+}
+
+void ABaseCharacter::CreatWidgetDamage(float value)
+{
+	if (Role < ROLE_Authority)
+		return;
+	UWidget3d* damage_text_instance = NewObject<UWidget3d>(this, TEXT("DamageText"));
+	damage_text_instance->RegisterComponent();
+	damage_text_instance->Follow(damage_text_class, value, true, FVector(0.f, 0.f, 30.f));
 }
 
 bool ABaseCharacter::HammerHit()
@@ -238,6 +251,12 @@ void ABaseCharacter::Death()
 void ABaseCharacter::Move()
 {
 
+}
+
+void ABaseCharacter::SetLifeBarHandler(int Life)
+{
+	if (lifeBarHandler)
+		lifeBarHandler->Action(_Life);
 }
 
 #pragma endregion

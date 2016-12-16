@@ -52,6 +52,9 @@ public:
     UWidget3d* lifeBarHandler = nullptr;
     TSubclassOf<UUserWidget> life_bar_class;
     TSubclassOf<UUserWidget> damage_text_class;
+	void SetLifeBarHandler(int Life);
+
+	void CreatWidgetDamage(float value);
 
     UPROPERTY(EditAnywhere) float dropRate = .5f;
     UPROPERTY(EditAnywhere) float pickRadius = 100.f;
@@ -79,7 +82,7 @@ public:
 	AAIDirector* AImgr;
 
 #pragma region Network
-	UFUNCTION(reliable, server, WithValidation)
+	UFUNCTION(reliable, NetMulticast, WithValidation)
 		void ServSetLife(int Life);
 		void ServSetLife_Implementation(int Life);
 		bool ServSetLife_Validate(int Life);
