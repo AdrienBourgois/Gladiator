@@ -1,5 +1,6 @@
 #include "GladiatorGame.h"
 #include "Widget3d.h"
+#include "WidgetInterface.h"
 
 // Sets default values for this component's properties
 UWidget3d::UWidget3d()
@@ -72,7 +73,7 @@ void UWidget3d::Follow(TSubclassOf<UUserWidget> _type, float init_value, bool _f
     actor_to_follow = GetOwner();
     relative_location_from_actor = _relative_location;
 
-    widget_component = NewObject<UWidgetComponent>(this, TEXT("WidgetComponentInstance"));
+    widget_component = NewObject<UWidgetComponent>(this);
     widget_component->SetWidgetClass(_type);
     widget_component->SetWorldLocation(actor_to_follow->GetActorLocation() + relative_location_from_actor);
     widget_component->SetVisibility(true);

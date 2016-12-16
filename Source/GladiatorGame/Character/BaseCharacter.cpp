@@ -163,7 +163,7 @@ void ABaseCharacter::ReceiveDamage(int dmg)
         else
             GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Life Bar not initialized !"));
 
-        UWidget3d* damage_text_instance = NewObject<UWidget3d>(this, TEXT("DamageText"));
+        UWidget3d* damage_text_instance = NewObject<UWidget3d>(this);
         damage_text_instance->RegisterComponent();
         damage_text_instance->Follow(damage_text_class, 1.f, true, FVector(0.f, 0.f, 30.f));
     }
@@ -174,7 +174,7 @@ void ABaseCharacter::ReceiveDamage(int dmg)
             lifeBarHandler->Destruct();
             lifeBarHandler = nullptr;
         }
-        UWidget3d* damage_text_instance = NewObject<UWidget3d>(this, TEXT("DamageText"));
+        UWidget3d* damage_text_instance = NewObject<UWidget3d>(this);
         damage_text_instance->RegisterComponent();
         damage_text_instance->Follow(damage_text_class, 2.f, true, FVector(0.f, 0.f, 30.f));
     }

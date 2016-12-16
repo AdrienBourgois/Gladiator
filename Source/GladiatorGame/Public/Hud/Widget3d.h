@@ -3,7 +3,6 @@
 #include "Components/ActorComponent.h"
 #include "WidgetComponent.h"
 #include "Blueprint/UserWidget.h"
-#include "WidgetInterface.h"
 #include "Widget3d.generated.h"
 
 UCLASS( ClassGroup=(Widget), meta=(BlueprintSpawnableComponent) )
@@ -17,10 +16,10 @@ public:
 	UWidget3d();
 
 	// Called when the game starts
-	virtual void BeginPlay() override;
+	void BeginPlay() override;
 	
 	// Called every frame
-	virtual void TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction ) override;
+	void TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction ) override;
 
 	UFUNCTION(BlueprintCallable, Category = "C++ Function")
 	void Follow(TSubclassOf<UUserWidget> _type, float init_value = 0, bool _fly_animation = false, FVector _relative_location = FVector(0.f, 0.f, 100.f));

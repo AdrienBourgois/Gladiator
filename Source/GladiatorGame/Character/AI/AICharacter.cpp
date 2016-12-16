@@ -23,7 +23,7 @@ void AAICharacter::BeginPlay()
 void AAICharacter::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
-	//LookAt();
+	LookAt();
 }
 
 void AAICharacter::SetupPlayerInputComponent(class UInputComponent* InputComponent)
