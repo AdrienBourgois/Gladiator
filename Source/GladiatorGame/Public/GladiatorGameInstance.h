@@ -19,9 +19,9 @@ class GLADIATORGAME_API UGladiatorGameInstance : public UGameInstance
 public:
 
 	UFUNCTION(BlueprintCallable, Category = "Network")
-		void StartOnlineGame(FString GameSessionName, bool IsLan, FString MaxNumPlayers);
+		void StartOnlineGame(bool IsLan);
 	UFUNCTION(BlueprintCallable, Category = "Network")
-		void FindOnlineGames();
+		void FindOnlineGames(bool IsLan, FString Adress);
 	UFUNCTION(BlueprintCallable, Category = "Network")
 		void JoinOnlineGame();
 	UFUNCTION(BlueprintCallable, Category = "Network")

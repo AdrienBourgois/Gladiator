@@ -20,26 +20,24 @@ UGladiatorGameInstance::~UGladiatorGameInstance()
 }
 
 #pragma region BPFunc
-void UGladiatorGameInstance::StartOnlineGame(FString _GameSessionName, bool IsLan, FString MaxNumPlayers)
+void UGladiatorGameInstance::StartOnlineGame(bool IsLan)
 {
 	ULocalPlayer* const Player = GetFirstGamePlayer();
-	HostSession(Player->GetPreferredUniqueNetId(), FName(*_GameSessionName), IsLan, true, FCString::Atoi(*MaxNumPlayers));
+	HostSession(Player->GetPreferredUniqueNetId(), GameSessionName, IsLan, true, 4);
 }
 
-void UGladiatorGameInstance::FindOnlineGames()
+void UGladiatorGameInstance::FindOnlineGames(bool IsLan, FString Adress)
 {
-	UE_LOG(LogTemp, Warning, TEXT("BPFunc FindOnlineGames"));
-
 	ULocalPlayer* const Player = GetFirstGamePlayer();
-	FindSessions(Player->GetPreferredUniqueNetId(), GameSessionName, true, true);
+	AdressIP = Adress;
+	FindSessions(Player->GetPreferredUniqueNetId(), GameSessionName, IsLan, true);
 }
 
 void UGladiatorGameInstance::JoinOnlineGame()
 {
-	UE_LOG(LogTemp, Warning, TEXT("BPFunc JoinOnlineGame"));
 	ULocalPlayer* const Player = GetFirstGamePlayer();
-
 	FOnlineSessionSearchResult SearchResult;
+
 	if (SessionSearch->SearchResults.Num() > 0)
 	{
 		for (int32 i = 0; i < SessionSearch->SearchResults.Num(); i++)
@@ -56,8 +54,6 @@ void UGladiatorGameInstance::JoinOnlineGame()
 
 void UGladiatorGameInstance::DestroySessionAndLeaveGame()
 {
-	UE_LOG(LogTemp, Warning, TEXT("BPFunc DestroySessionAndLeaveGame"));
-
 	IOnlineSubsystem* OnlineSub = IOnlineSubsystem::Get();
 	if (OnlineSub)
 	{
@@ -171,8 +167,8 @@ void UGladiatorGameInstance::OnFindSessionsComplete(bool bWasSuccessful)
 			{
 				for (int32 SearchIdx = 0; SearchIdx < SessionSearch->SearchResults.Num(); SearchIdx++)
 				{
-					GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Session Number: %d | Sessionname: %s "), SearchIdx + 1, *(SessionSearch->SearchResults[SearchIdx].Session.OwningUserName)));
 					UE_LOG(LogTemp, Warning, TEXT("Session Number: %d | Sessionname: %s "), SearchIdx + 1, *(SessionSearch->SearchResults[SearchIdx].Session.OwningUserName));
+					JoinOnlineGame();
 				}
 			}
 		}
@@ -211,7 +207,7 @@ void UGladiatorGameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSes
 			Sessions->ClearOnJoinSessionCompleteDelegate_Handle(OnJoinSessionCompleteDelegateHandle);
 			APlayerController * const PlayerController = GetFirstLocalPlayerController();
 
-			FString TravelURL;// = AdressIP;
+			FString TravelURL = AdressIP;
 			if (PlayerController && Sessions->GetResolvedConnectString(SessionName, TravelURL))
 				PlayerController->ClientTravel(TravelURL, ETravelType::TRAVEL_Absolute);
 		}

@@ -38,31 +38,15 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated) int _Life = 5;
 	void SetLife(int Life);
-	UFUNCTION(reliable, server, WithValidation)
-		void ServSetLife(int Life);
-		void ServSetLife_Implementation(int Life);
-		bool ServSetLife_Validate(int Life);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated) bool isAttacking = false;
 	void SetIsAttacking(bool bNewSomeBool);
-	UFUNCTION(reliable, server, WithValidation)
-		void ServSetIsAttacking(bool bNewSomeBool);
-		void ServSetIsAttacking_Implementation(bool bNewSomeBool);
-		bool ServSetIsAttacking_Validate(bool bNewSomeBool);
 
 	UPROPERTY(Replicated) bool HammerVisible = true;
 	void SetHammerVisible(bool bNewSomeBool);
-	UFUNCTION(reliable, NetMulticast, WithValidation)
-		void ServSetHammerVisible(bool bNewSomeBool);
-		void ServSetHammerVisible_Implementation(bool bNewSomeBool);
-		bool ServSetHammerVisible_Validate(bool bNewSomeBool);
 
 	UPROPERTY(Replicated) bool ShieldVisible = true;
 	void SetShieldVisible(bool bNewSomeBool);
-	UFUNCTION(reliable, NetMulticast, WithValidation)
-		void ServSetShieldVisible(bool bNewSomeBool);
-		void ServSetShieldVisible_Implementation(bool bNewSomeBool);
-		bool ServSetShieldVisible_Validate(bool bNewSomeBool);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<ULifeBar> LifeBar;
@@ -92,4 +76,31 @@ public:
 	AActor* DropEquipment(USceneComponent* toDrop);
 
 	AAIDirector* AImgr;
+
+#pragma region Network
+	UFUNCTION(reliable, server, WithValidation)
+		void ServSetLife(int Life);
+		void ServSetLife_Implementation(int Life);
+		bool ServSetLife_Validate(int Life);
+
+	UFUNCTION(reliable, server, WithValidation)
+		void ServSetIsAttacking(bool bNewSomeBool);
+		void ServSetIsAttacking_Implementation(bool bNewSomeBool);
+		bool ServSetIsAttacking_Validate(bool bNewSomeBool);
+	
+	UFUNCTION(reliable, NetMulticast, WithValidation)
+		void ServSetHammerVisible(bool bNewSomeBool);
+		void ServSetHammerVisible_Implementation(bool bNewSomeBool);
+		bool ServSetHammerVisible_Validate(bool bNewSomeBool);
+
+	UFUNCTION(reliable, NetMulticast, WithValidation)
+		void ServSetShieldVisible(bool bNewSomeBool);
+		void ServSetShieldVisible_Implementation(bool bNewSomeBool);
+		bool ServSetShieldVisible_Validate(bool bNewSomeBool);
+
+	UFUNCTION(reliable, NetMulticast, WithValidation)
+		void ServDropEquipment(USceneComponent* toDrop);
+		void ServDropEquipment_Implementation(USceneComponent* toDrop);
+		bool ServDropEquipment_Validate(USceneComponent* toDrop);
+#pragma endregion
 };

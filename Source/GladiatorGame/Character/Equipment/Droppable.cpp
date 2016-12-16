@@ -11,7 +11,6 @@ ADroppable::ADroppable()
 	this->mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("mesh"));
 	
 	this->mesh->SetNetAddressable();
-	this->mesh->SetIsReplicated(true);
 }
 
 void ADroppable::Init(USkeletalMeshComponent* mesh_component)
@@ -37,6 +36,10 @@ void ADroppable::Init(USkeletalMeshComponent* mesh_component)
 	hitbox->SetWorldTransform(mesh_component->GetComponentTransform());
 
 	mesh_component->SetVisibility(false);
+
+	SetRemoteRoleForBackwardsCompat(ROLE_SimulatedProxy);
+	bReplicates = true;
+	bReplicateMovement = true;
 }
 
 void ADroppable::ApplyForces(FVector force, FVector torque)

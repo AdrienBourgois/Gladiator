@@ -123,6 +123,18 @@ bool ABaseCharacter::ServSetShieldVisible_Validate(bool bNewSomeBool)
 {
 	return true;
 }
+
+
+void ABaseCharacter::ServDropEquipment_Implementation(USceneComponent* toDrop)
+{
+	DropEquipment(toDrop);
+}
+
+bool ABaseCharacter::ServDropEquipment_Validate(USceneComponent* toDrop)
+{
+	return true;
+}
+
 #pragma endregion
 
 	// --- ----- --- //
@@ -148,7 +160,10 @@ void ABaseCharacter::ReceiveDamage(int dmg)
 
 	this->_Life -= dmg * multiplier;
 
+	
+	
 	this->RandomDrop();
+
 	if (this->_Life <= 0)
 		this->Death();
 }
@@ -243,7 +258,9 @@ void ABaseCharacter::RandomDrop()
 		int dropidx = FMath::RandRange(0, equipment.Num() - 1);
 
 		if (equipment[keys[dropidx]])
-			DropEquipment(keys[dropidx]);
+		{
+			ServDropEquipment(keys[dropidx]);
+		}
 	}
 }
 

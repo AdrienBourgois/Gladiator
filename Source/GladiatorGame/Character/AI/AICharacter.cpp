@@ -23,7 +23,7 @@ void AAICharacter::BeginPlay()
 void AAICharacter::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
-	//LookAt();
+	LookAt();
 }
 
 void AAICharacter::SetupPlayerInputComponent(class UInputComponent* InputComponent)
@@ -117,6 +117,7 @@ void AAICharacter::CheckStuff()
 {
 	if (!equipment[shieldRef])
 	{
+
 		UE_LOG(LogTemp, Warning, TEXT("Shield False"));
 		SetState(StateAI::ShieldLost);
 		BlackBoard->SetValueAsObject("Shield", AIManager->GoToWeapon(shieldRef));
