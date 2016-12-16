@@ -33,9 +33,6 @@
 
 	Adrien BOURGOIS :
 		
-		3D Widgets:
-			Generic class to handle 3d widgets, based on 2d GUI with animations
-
 		HUD: 
 			Displaying characters (AI / Player) health as 3D Widgets
 			but Remove because it causes a crash
@@ -46,13 +43,12 @@
 		Sounds: 
 			Create Simple Sound Service to play sounds (positionnal) and music
 
-		Service Locator:
-			Locator that use singletons of Unreal to handle differents services and games singletons
+               Service Locator:
+                       Locator that use singletons of Unreal to handle differents services and games singletons
 
-		Project:
-			Help to fix differents problems at the end of the project
-			Configurations of final build
-
+               Project:
+                       Help to fix differents problems at the end of the project
+                       Configurations of final build
 
 	Bastien TECHE:
 
@@ -66,12 +62,14 @@
 				Playing attack animation
 				Collision check on appropriate animation frame
 			
+			Drop/pick: 
+				enemy have possibility to lost shield or/and weapon,  recover it
+				
 			Death:
 				Play death animation
 				Disable controls and collision
 				Stop logic
 			
-
 		Animation:
 			Movement BlendSpace including moving forward , backward and strafes
 
@@ -80,8 +78,9 @@
 			button restart
 			button quit
 
-		[WIP] Networking:
-			It's not operational
+		Networking:
+			Possibility create server, client connect (max 4)
+			it's a deathmatch, at the end game, the client return to the mainmenu
 
 	Antoine SIMON:
 
@@ -110,12 +109,12 @@
 			Player faces locked target
 			Circle movement around player (cf Known Bug & Issues)
 
-		[WIP] Equipment Drop :
+		Equipment Drop :
 			 Random chance for characters (AI / Player) to drop equipment on hit 
 			 Physicalization of dropped equipment -> thrown backward
 			 Debuffs when missing equipments
 			 Player equipment recovery when near enough and key pressed
-			 [WIP] Enemies equipment recovery
+			 
 
 	// --- ----- --- //
 
@@ -130,8 +129,12 @@
 			Switch target glitched w/ gamepad inputs due to axis mapping
 		
 		Equipment Drop:
-			The IA Recovered the weapon too fast or put many time for go to pick
-
+			AI Recovered nearly instant,
+			the distance it's very high because the "moveTo" it's not operational for this
+		
+		Networking:
+			AI it's not implement
+			The object for the drop it's not synchronize
 	// --- ----- --- //
 
 		//	EOF	//
