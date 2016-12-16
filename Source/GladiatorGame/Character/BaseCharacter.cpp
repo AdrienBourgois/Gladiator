@@ -6,7 +6,7 @@
 #include "Character/Equipment/Droppable.h"
 #include "AI/AIDirector.h"
 #include "BaseCharacter.h"
-#include "Kismet/KismetStringLibrary.h"
+#include "Hud/DamageText.h"
 
 ABaseCharacter::ABaseCharacter()
 {
@@ -38,7 +38,7 @@ void ABaseCharacter::BeginPlay()
     lifeBarHandler->Follow(life_bar_class, _Life);
 }
 
-	// --- ----- --- //
+    // --- ----- --- //
 
 #pragma region Network
 
@@ -90,57 +90,57 @@ bool ABaseCharacter::ServSetIsAttacking_Validate(bool bNewSomeBool)
 
 void ABaseCharacter::SetHammerVisible(bool bNewSomeBool)
 {
-	bool Send = false;
-	if (HammerVisible != bNewSomeBool)
-		Send = true;
-	equipment[weaponRef] = bNewSomeBool;
-	HammerVisible = bNewSomeBool;
-	weaponRef->SetVisibility(bNewSomeBool);
-	if (Send == true)
-		ServSetHammerVisible(bNewSomeBool);
+    bool Send = false;
+    if (HammerVisible != bNewSomeBool)
+        Send = true;
+    equipment[weaponRef] = bNewSomeBool;
+    HammerVisible = bNewSomeBool;
+    weaponRef->SetVisibility(bNewSomeBool);
+    if (Send == true)
+        ServSetHammerVisible(bNewSomeBool);
 }
 
 void ABaseCharacter::ServSetHammerVisible_Implementation(bool bNewSomeBool)
 {
-	SetHammerVisible(bNewSomeBool);
+    SetHammerVisible(bNewSomeBool);
 }
 
 bool ABaseCharacter::ServSetHammerVisible_Validate(bool bNewSomeBool)
 {
-	return true;
+    return true;
 }
 
 void ABaseCharacter::SetShieldVisible(bool bNewSomeBool)
 {
-	bool Send = false;
-	if (ShieldVisible != bNewSomeBool)
-		Send = true;
-	equipment[shieldRef] = bNewSomeBool;
-	ShieldVisible = bNewSomeBool;
-	shieldRef->SetVisibility(bNewSomeBool);
-	if (Send == true)
-		ServSetShieldVisible(bNewSomeBool);
+    bool Send = false;
+    if (ShieldVisible != bNewSomeBool)
+        Send = true;
+    equipment[shieldRef] = bNewSomeBool;
+    ShieldVisible = bNewSomeBool;
+    shieldRef->SetVisibility(bNewSomeBool);
+    if (Send == true)
+        ServSetShieldVisible(bNewSomeBool);
 }
 
 void ABaseCharacter::ServSetShieldVisible_Implementation(bool bNewSomeBool)
 {
-	SetShieldVisible(bNewSomeBool);
+    SetShieldVisible(bNewSomeBool);
 }
 
 bool ABaseCharacter::ServSetShieldVisible_Validate(bool bNewSomeBool)
 {
-	return true;
+    return true;
 }
 #pragma endregion
 
-	// --- ----- --- //
+    // --- ----- --- //
 
 #pragma region Basics
 
 void ABaseCharacter::Attack()
 {
     if (this->weaponRef)
-		if (!this->equipment[weaponRef])
+        if (!this->equipment[weaponRef])
             return;
 
     this->SetIsAttacking(true);
@@ -151,7 +151,7 @@ void ABaseCharacter::ReceiveDamage(int dmg)
     float multiplier = 1.f;
 
     if (this->shieldRef)
-		if (!this->equipment[shieldRef])
+        if (!this->equipment[shieldRef])
             multiplier = 2.f;
 
     this->_Life -= dmg * multiplier;
@@ -230,7 +230,7 @@ void ABaseCharacter::Move()
 
 #pragma endregion
 
-	// --- ----- --- //
+    // --- ----- --- //
 
 #pragma region Equipment Drop
 
@@ -249,7 +249,7 @@ void ABaseCharacter::InitEquipmentMap()
         else
         {
             if (converted->HasAnySockets() && converted->GetAttachSocketName() != "None")
-				equipment.Add(converted, true);
+                equipment.Add(converted, true);
             USkeletalMeshComponent* skeletal_mesh_component = Cast<USkeletalMeshComponent>(converted);
             if (skeletal_mesh_component)
             {
@@ -273,8 +273,8 @@ void ABaseCharacter::RandomDrop()
 
         int dropidx = FMath::RandRange(0, equipment.Num() - 1);
 
-		if (equipment[keys[dropidx]])
-			DropEquipment(keys[dropidx]);
+        if (equipment[keys[dropidx]])
+            DropEquipment(keys[dropidx]);
     }
 }
 
@@ -282,44 +282,45 @@ void ABaseCharacter::TryPickEquipment()
 {
     TArray<USceneComponent*> keys = TArray<USceneComponent*>(); equipment.GetKeys(keys);
 
-	TArray<FOverlapResult> results;
-	this->GetWorld()->OverlapMultiByChannel(results,
-		this->GetActorLocation(),
-		this->GetActorRotation().Quaternion(),
-		ECollisionChannel::ECC_MAX,
-		FCollisionShape::MakeCapsule(pickRadius, this->GetComponentsBoundingBox().GetExtent().Z));
+    TArray<FOverlapResult> results;
+    this->GetWorld()->OverlapMultiByChannel(results,
+        this->GetActorLocation(),
+        this->GetActorRotation().Quaternion(),
+        ECollisionChannel::ECC_MAX,
+        FCollisionShape::MakeCapsule(pickRadius, this->GetComponentsBoundingBox().GetExtent().Z));
 
-	TArray<AActor*> found = TArray<AActor*>();
+    TArray<AActor*> found = TArray<AActor*>();
 
     for (USceneComponent* key : keys)
-		if (equipment[key])
-			continue;
+    {
+        if (equipment[key])
+            continue;
 
-		for (int i = 0; i < results.Num(); ++i)
+        for (int i = 0; i < results.Num(); ++i)
 {
-			FOverlapResult hit = results[i];
+            FOverlapResult hit = results[i];
 
-			if (hit.GetActor()->GetClass()->IsChildOf(ADroppable::StaticClass()))
-        	{
-				ADroppable* drop = Cast<ADroppable>(hit.GetActor());
-				USkeletalMeshComponent* keycast = Cast<USkeletalMeshComponent>(key);
-				if (keycast)
-					if (drop->IsSameAs(Cast<USkeletalMeshComponent>(key)))
-					{
-						AAIDirector::GetAIDirector()->GetEquipmentList().Remove(drop);
-						if (key == weaponRef)
-							SetHammerVisible(true);
-						else if (key == shieldRef)
-							SetShieldVisible(true);
-            			key->SetVisibility(true);
-						found.Add(hit.GetActor());
-						break;
-        			}
-			}
-		}
-	}
-	for (AActor* cur : found)
-		cur->Destroy();
+            if (hit.GetActor()->GetClass()->IsChildOf(ADroppable::StaticClass()))
+            {
+                ADroppable* drop = Cast<ADroppable>(hit.GetActor());
+                USkeletalMeshComponent* keycast = Cast<USkeletalMeshComponent>(key);
+                if (keycast)
+                    if (drop->IsSameAs(Cast<USkeletalMeshComponent>(key)))
+                    {
+                        AAIDirector::GetAIDirector()->GetEquipmentList().Remove(drop);
+                        if (key == weaponRef)
+                            SetHammerVisible(true);
+                        else if (key == shieldRef)
+                            SetShieldVisible(true);
+                        key->SetVisibility(true);
+                        found.Add(hit.GetActor());
+                        break;
+                    }
+            }
+        }
+    }
+    for (AActor* cur : found)
+        cur->Destroy();
 }
 
 void ABaseCharacter::PickEquipment(AActor* picked)
@@ -332,26 +333,26 @@ AActor* ABaseCharacter::DropEquipment(USceneComponent* toDrop)
     USkeletalMeshComponent* converted = Cast<USkeletalMeshComponent>(toDrop);
     if (converted)
 {
-		ADroppable* drop = Cast<ADroppable>(GetWorld()->SpawnActor<ADroppable>(converted->GetComponentLocation(), converted->GetComponentRotation()));
-		drop->Init(converted);
+        ADroppable* drop = Cast<ADroppable>(GetWorld()->SpawnActor<ADroppable>(converted->GetComponentLocation(), converted->GetComponentRotation()));
+        drop->Init(converted);
 
-		FVector force = this->GetActorUpVector() * 1.5f - this->GetActorForwardVector();
-		FVector torque = -GetActorRightVector()* FMath::FRandRange(100.f, 300.f) + GetActorUpVector() * FMath::FRandRange(-300.f, 300.f);
+        FVector force = this->GetActorUpVector() * 1.5f - this->GetActorForwardVector();
+        FVector torque = -GetActorRightVector()* FMath::FRandRange(100.f, 300.f) + GetActorUpVector() * FMath::FRandRange(-300.f, 300.f);
 
-		force = force.RotateAngleAxis(FMath::FRandRange(-10.f, 10.f), this->GetActorUpVector());
-		force = force.RotateAngleAxis(FMath::FRandRange(0.f, 45.f), this->GetActorRightVector());
+        force = force.RotateAngleAxis(FMath::FRandRange(-10.f, 10.f), this->GetActorUpVector());
+        force = force.RotateAngleAxis(FMath::FRandRange(0.f, 45.f), this->GetActorRightVector());
 
-		drop->ApplyForces(force * ONE_METER * 3.f, torque);
+        drop->ApplyForces(force * ONE_METER * 3.f, torque);
 
-		if (toDrop == weaponRef)
-			SetHammerVisible(false);
-		else if (toDrop == shieldRef)
-			SetShieldVisible(false);
-		if (AAIDirector::GetAIDirector() != nullptr)
-			AAIDirector::GetAIDirector()->GetEquipmentList().Add(drop);
-		return Cast<AActor>(drop);
-	}
-	return nullptr;
+        if (toDrop == weaponRef)
+            SetHammerVisible(false);
+        else if (toDrop == shieldRef)
+            SetShieldVisible(false);
+        if (AAIDirector::GetAIDirector() != nullptr)
+            AAIDirector::GetAIDirector()->GetEquipmentList().Add(drop);
+        return Cast<AActor>(drop);
+    }
+    return nullptr;
 
 }
 
