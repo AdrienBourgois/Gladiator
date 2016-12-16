@@ -15,7 +15,12 @@ class IWidgetInterface
 public:
 
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="C++ Function")
-    void InitWidget(int value);
+    void InitWidget(float value);
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="C++ Function")
-    void ActionWidget(int value);
+    void ActionWidget(float value);
+
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="C++ Function")
+    float GetSizeX() const;
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="C++ Function")
+    float GetSizeY() const;
 };

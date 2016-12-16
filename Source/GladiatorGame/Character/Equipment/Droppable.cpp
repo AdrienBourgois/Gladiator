@@ -1,13 +1,17 @@
 #include "GladiatorGame.h"
 #include "Droppable.h"
-
+#include "UnrealNetwork.h"
 
 // Sets default values
 ADroppable::ADroppable()
 {
 	PrimaryActorTick.bCanEverTick = true;
+
 	this->hitbox = Cast<UPrimitiveComponent>(CreateDefaultSubobject<UBoxComponent>(TEXT("hitbox")));
 	this->mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("mesh"));
+	
+	this->mesh->SetNetAddressable();
+	this->mesh->SetIsReplicated(true);
 }
 
 void ADroppable::Init(USkeletalMeshComponent* mesh_component)
@@ -33,9 +37,6 @@ void ADroppable::Init(USkeletalMeshComponent* mesh_component)
 	hitbox->SetWorldTransform(mesh_component->GetComponentTransform());
 
 	mesh_component->SetVisibility(false);
-
-	this->SetReplicates(true);
-	this->SetReplicateMovement(true);
 }
 
 void ADroppable::ApplyForces(FVector force, FVector torque)

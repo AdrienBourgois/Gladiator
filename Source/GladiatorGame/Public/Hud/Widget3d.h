@@ -23,7 +23,11 @@ public:
 	virtual void TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction ) override;
 
 	UFUNCTION(BlueprintCallable, Category = "C++ Function")
-	void Follow(TSubclassOf<UUserWidget> _type, int init_value = 0, FVector _relative_location = FVector(0.f, 0.f, 100.f));
+	void Follow(TSubclassOf<UUserWidget> _type, float init_value = 0, bool _fly_animation = false, FVector _relative_location = FVector(0.f, 0.f, 100.f));
+	UFUNCTION(BlueprintCallable, Category = "C++ Function")
+	void Action(float value) const;
+
+	void Destruct();
 
 	UUserWidget* widget_instance = nullptr;
 	UWidgetComponent* widget_component = nullptr;
@@ -32,5 +36,9 @@ public:
 	FVector relative_location_from_actor = FVector();
 
 	APlayerCameraManager* camera_manager = nullptr;
+
+	bool fly_animation = false;
+	FVector current_fly_location = FVector();
+	const float max_z_fly = 50.f;
 	
 };

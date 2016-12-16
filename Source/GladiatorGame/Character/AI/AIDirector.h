@@ -4,6 +4,7 @@
 
 #include "GameFramework/Actor.h"
 #include "AICharacter.h"
+#include "Character/Equipment/Droppable.h"
 #include "AIDirector.generated.h"
 
 UCLASS()
@@ -18,9 +19,12 @@ public:
 	virtual void Tick( float DeltaSeconds ) override;
 
 	void ChoiceGoToPlayer();
+	ADroppable* GoToWeapon(USceneComponent* ref);
 	void DeathAI(AAICharacter* Target);
 
+	static AAIDirector* GetAIDirector();
 	TArray<AAICharacter*> GetAIList() { return AIList; }
+	TArray<ADroppable*> GetEquipmentList() { return EquipmentList; }
 
 	UPROPERTY(EditAnywhere)
 		UClass* IAClass;
@@ -37,8 +41,10 @@ public:
 	UPROPERTY(EditAnywhere)
 		int _Life = 3;
 private:
+	static AAIDirector* instance;
 	AActor* CurrentPlayer;
 	TArray<AAICharacter*> AIList;
+	TArray<ADroppable*> EquipmentList;
 
 	FTimerHandle	GotoPlayerTimerHandle;
 };
