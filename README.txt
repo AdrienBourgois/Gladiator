@@ -1,7 +1,7 @@
 	// --- ----- --- //
 
-	Gladiator : BETA
-	21/11/16 : 9/12/16
+	Gladiator : GOLD
+	21/11/16 : 16/12/16
 	Groupe :
 
 	Adrien BOURGOIS
@@ -35,6 +35,7 @@
 		
 		HUD: 
 			Displaying characters (AI / Player) health as 3D Widgets
+			but Remove because it causes a crash
 		
 		Day and Night Cycle: 
 			Day & Night Cycle w/ light shifting
@@ -46,16 +47,30 @@
 
 		AI:
 			Positionning: 
-				[...]
+				Calculate a safe position compared to player 
+				and recalculate a position with safe position compared to other safe position to AI
 			
 			Attack: 
-				[...]
+				AIDirector use a timer for launch AI to attack the player
+				Playing attack animation
+				Collision check on appropriate animation frame
 			
 			Death:
-				[...]
+				Play death animation
+				Disable controls and collision
+				Stop logic
+			
 
 		Animation:
 			Movement BlendSpace including moving forward , backward and strafes
+
+		EndGame:
+			Display a menu with a text designates the winner
+			button restart
+			button quit
+
+		[WIP] Networking:
+			It's not operational
 
 	Antoine SIMON:
 
@@ -75,7 +90,7 @@
 			Avoid collisions w/ determined objects (AI & props)
 
 		Visual FX:
-			Blood particles on hammer hit
+			Blood particles on hammer hit w/ blood splats 
 			Dust particles on footstep
 
 		Lock System:
@@ -102,6 +117,9 @@
 		Lock System:
 			LR strafes lack of accuracy : stacking those errors lead to spiral movement instead of clean circle
 			Switch target glitched w/ gamepad inputs due to axis mapping
+		
+		Equipment Drop:
+			The IA Recovered the weapon too fast or put many time for go to pick
 
 	// --- ----- --- //
 
